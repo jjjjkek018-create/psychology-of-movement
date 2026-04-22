@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Концептуалізація багаторівневої системи управління рухами — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* Background drawings (shared across all pages) */
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -20px) rotate(5deg); }
+      50% { transform: translate(-10px, -35px) rotate(-3deg); }
+      75% { transform: translate(-20px, -10px) rotate(8deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-25px, 15px) rotate(-7deg); }
+      66% { transform: translate(15px, 30px) rotate(4deg); }
+    }
+    
+    @keyframes floatBall3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(30px, -10px) rotate(6deg); }
+      40% { transform: translate(-15px, 25px) rotate(-4deg); }
+      60% { transform: translate(10px, -30px) rotate(3deg); }
+      80% { transform: translate(-30px, -5px) rotate(-6deg); }
+    }
+    
+    @keyframes spinBall {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulseNeuron {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.35; }
+    }
+    
+    @keyframes levelPulse {
+      0%, 100% { border-left-color: rgba(217, 108, 74, 0.3); }
+      50% { border-left-color: rgba(217, 108, 74, 0.8); }
+    }
+    
+    .ball-1 { animation: floatBall1 18s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 22s ease-in-out infinite; }
+    .ball-3 { animation: floatBall3 25s ease-in-out infinite; }
+    .ball-4 { animation: floatBall1 20s ease-in-out infinite reverse; }
+    .ball-5 { animation: floatBall2 28s ease-in-out infinite; }
+    
+    .spin-slow { animation: spinBall 40s linear infinite; }
+    .spin-reverse { animation: spinBall 35s linear infinite reverse; }
+    .pulse-neuron { animation: pulseNeuron 4s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    /* Navigation */
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    /* Level Cards */
+    .level-card {
+      background: var(--bg-secondary);
+      padding: var(--space-6);
+      margin: var(--space-6) 0;
+      border-radius: 4px;
+      border-left: 4px solid var(--accent-warm-solid);
+      border-right: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      transition: all var(--duration-base) var(--ease-out-expo);
+      animation: levelPulse 6s ease-in-out infinite;
+    }
+    
+    .level-card:nth-child(2) { animation-delay: 1s; }
+    .level-card:nth-child(3) { animation-delay: 2s; }
+    .level-card:nth-child(4) { animation-delay: 3s; }
+    .level-card:nth-child(5) { animation-delay: 4s; }
+    
+    .level-header {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    
+    .level-name {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-lg);
+      color: var(--text-primary);
+    }
+    
+    .level-substrate {
+      font-size: var(--text-sm);
+      color: var(--accent-cool);
+      font-family: 'Mackinac', serif;
+    }
+    
+    .level-afferentation {
+      display: inline-block;
+      background: rgba(42, 92, 130, 0.08);
+      padding: var(--space-1) var(--space-3);
+      border-radius: 20px;
+      font-size: var(--text-xs);
+      color: var(--accent-cool);
+      margin-bottom: var(--space-3);
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+    
+    /* Comparison Table Container */
+    .comparison-table-wrapper {
+      margin: var(--space-12) 0;
+      overflow-x: auto;
+    }
+    
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+      min-width: 900px;
+    }
+    
+    .comparison-table th {
+      font-family: 'Mackinac', serif;
+      font-weight: 500;
+      text-align: left;
+      padding: var(--space-4) var(--space-4);
+      background: var(--bg-tertiary);
+      border-bottom: 2px solid var(--accent-cool-light);
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    
+    .comparison-table td {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+    
+    .comparison-table tr:hover td {
+      background: rgba(242, 166, 141, 0.04);
+    }
+    
+    .comparison-table .level-label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <!-- Playful Background Drawings -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Basketball -->
+      <g class="ball-1">
+        <circle cx="130" cy="190" r="42" fill="none" stroke="#D96C4A" stroke-width="1.8" opacity="0.55"/>
+        <path d="M103 167 Q130 181 157 167" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.45"/>
+        <path d="M106 205 Q130 192 154 205" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.45"/>
+        <line x1="130" y1="148" x2="130" y2="232" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+      </g>
+      
+      <!-- Tennis ball -->
+      <g class="ball-2">
+        <circle cx="980" cy="220" r="30" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.5"/>
+        <path d="M965 206 Q978 212 995 206" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.4"/>
+        <path d="M963 230 Q978 224 997 230" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="972" cy="212" r="1.5" fill="#E6A817" opacity="0.3"/>
+        <circle cx="990" cy="225" r="1" fill="#E6A817" opacity="0.3"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-3">
+        <circle cx="320" cy="640" r="48" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+        <polygon points="320,607 333,616 333,633 320,642 307,633 307,616" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.3"/>
+        <polygon points="333,616 347,621 347,633 333,642" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.25"/>
+      </g>
+      
+      <!-- Volleyball -->
+      <g class="ball-4">
+        <circle cx="1080" cy="560" r="40" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.4"/>
+        <path d="M1050 541 Q1080 556 1110 541" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+        <path d="M1050 579 Q1080 564 1110 579" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+        <path d="M1060 530 Q1045 558 1060 588" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Baseball -->
+      <g class="ball-5">
+        <circle cx="780" cy="700" r="34" fill="none" stroke="#4A4540" stroke-width="1.5" opacity="0.35"/>
+        <path d="M757 686 Q765 700 757 714" fill="none" stroke="#E6A817" stroke-width="1.2" opacity="0.4" stroke-dasharray="3,3"/>
+        <path d="M803 686 Q795 700 803 714" fill="none" stroke="#E6A817" stroke-width="1.2" opacity="0.4" stroke-dasharray="3,3"/>
+      </g>
+      
+      <!-- Hierarchical level arcs (Bernstein's tower) -->
+      <path d="M400 100 L400 180" stroke="#2A5C82" stroke-width="1.5" opacity="0.15"/>
+      <path d="M395 180 Q300 200 250 250" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.12" stroke-dasharray="4,3"/>
+      <path d="M405 180 Q500 200 550 250" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.12" stroke-dasharray="4,3"/>
+      
+      <!-- Level indicators (A through D) -->
+      <text x="380" y="140" font-family="Georgia, serif" font-size="14" fill="#2A5C82" opacity="0.2">Д</text>
+      <text x="380" y="200" font-family="Georgia, serif" font-size="14" fill="#2A5C82" opacity="0.18">Г</text>
+      <text x="380" y="260" font-family="Georgia, serif" font-size="14" fill="#2A5C82" opacity="0.18">В</text>
+      <text x="380" y="320" font-family="Georgia, serif" font-size="14" fill="#2A5C82" opacity="0.18">Б</text>
+      <text x="380" y="380" font-family="Georgia, serif" font-size="14" fill="#2A5C82" opacity="0.18">А</text>
+      
+      <!-- Trajectory arcs -->
+      <path d="M100 130 Q300 60 500 190 Q700 320 900 160" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.18" stroke-dasharray="8,6"/>
+      <path d="M180 790 Q430 720 680 770 Q930 820 1130 740" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.13" stroke-dasharray="6,8"/>
+      
+      <!-- Neuron-like sparkles -->
+      <circle cx="520" cy="160" r="3" fill="#E6A817" opacity="0.25" class="pulse-neuron"/>
+      <circle cx="720" cy="310" r="2.5" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 1s;"/>
+      <circle cx="230" cy="460" r="2" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 2s;"/>
+      <circle cx="860" cy="430" r="3.5" fill="#E6A817" opacity="0.15" class="pulse-neuron" style="animation-delay: 0.5s;"/>
+      <circle cx="560" cy="730" r="2" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 1.5s;"/>
+      <circle cx="900" cy="680" r="2.5" fill="#E6A817" opacity="0.18" class="pulse-neuron" style="animation-delay: 2.5s;"/>
+      
+      <!-- Synaptic connection lines (hierarchical) -->
+      <line x1="400" y1="180" x2="250" y2="250" stroke="#2A5C82" stroke-width="0.6" opacity="0.1" stroke-dasharray="3,5"/>
+      <line x1="400" y1="180" x2="550" y2="250" stroke="#D96C4A" stroke-width="0.6" opacity="0.1" stroke-dasharray="3,5"/>
+      
+      <!-- Rotating rings (vestibular system reference for Level A) -->
+      <g class="spin-slow" transform="translate(870, 300)">
+        <ellipse cx="0" cy="0" rx="24" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.18"/>
+        <ellipse cx="0" cy="0" rx="24" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.13" transform="rotate(60)"/>
+        <ellipse cx="0" cy="0" rx="24" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.13" transform="rotate(120)"/>
+      </g>
+      
+      <g class="spin-reverse" transform="translate(190, 380)">
+        <ellipse cx="0" cy="0" rx="20" ry="11" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.16"/>
+        <ellipse cx="0" cy="0" rx="20" ry="11" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.11" transform="rotate(45)"/>
+        <ellipse cx="0" cy="0" rx="20" ry="11" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.11" transform="rotate(90)"/>
+      </g>
+      
+      <!-- Brain icon -->
+      <g opacity="0.1" transform="translate(70, 90) scale(0.9)">
+        <path d="M0,20 Q-5,0 10,-10 Q25,-15 35,-5 Q45,5 40,20 Q35,35 20,30 Q10,28 5,25 Z" 
+              fill="none" stroke="#2A5C82" stroke-width="2"/>
+        <path d="M10,-5 Q15,-12 25,-8" fill="none" stroke="#2A5C82" stroke-width="1.5"/>
+        <path d="M5,10 Q12,5 18,12" fill="none" stroke="#2A5C82" stroke-width="1.2"/>
+        <path d="M30,5 Q38,-2 42,8" fill="none" stroke="#2A5C82" stroke-width="1.2"/>
+      </g>
+      
+      <!-- Stick figure athlete (Level C - spatial field movement) -->
+      <g opacity="0.12" stroke="#2A5C82" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="640" cy="510" r="7"/>
+        <line x1="640" y1="517" x2="640" y2="545"/>
+        <line x1="640" y1="525" x2="660" y2="508"/>
+        <line x1="640" y1="525" x2="622" y2="535"/>
+        <line x1="640" y1="545" x2="655" y2="575"/>
+        <line x1="640" y1="545" x2="625" y2="570"/>
+        <circle cx="668" cy="502" r="5" stroke="#E6A817" stroke-width="1"/>
+      </g>
+      
+      <!-- Velocity vectors for spatial level -->
+      <g opacity="0.14">
+        <line x1="440" y1="330" x2="500" y2="310" stroke="#D96C4A" stroke-width="1.5"/>
+        <polygon points="500,310 492,305 494,315" fill="#D96C4A"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="neurophysiology.html" class="nav-button nav-button-outline">
+        ← Нейрофізіологія
+      </a>
+      <div class="nav-buttons">
+        <a href="stress.html" class="nav-button">
+          Стрес і контроль →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Розділ 2</div>
+      <h1>Концептуалізація багаторівневої системи управління рухами</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <p>Для формування вичерпного розуміння нейробіологічних механізмів координації складних рухів обов'язковим є звернення до класичної та найбільш обґрунтованої концепції рівневої побудови рухів. Згідно з цією фундаментальною фізіологічною теорією, управління будь-яким руховим актом є суворо ієрархічним багаторівневим процесом. Кожен анатомо-фізіологічний рівень центральної нервової системи у цій конструкції відповідає за специфічний клас рухових завдань та оперує виключно власним типом вхідної сенсорної інформації, яка визначається як провідна аферентація.</p>
+          
+          <p>Центральною проблемою моторного контролю, яку вирішує ця система, є подолання надмірності ступенів свободи кінематичних ланцюгів людського тіла. Кістково-м'язовий апарат має десятки суглобів і сотні м'язів, що створює астрономічну кількість можливих комбінацій їхнього стану. Нервова система фізично не здатна посилати жорстко детерміновані команди до кожного окремого м'язового волокна. Натомість вона функціонує за принципом безперервних сенсорних корекцій, враховуючи динамічні реактивні сили та мінливий зовнішній опір під час самого процесу розгортання руху в часі.</p>
+          
+          <!-- Level A -->
+          <div class="level-card">
+            <div class="level-header">
+              <span class="level-name">Рівень А</span>
+              <span class="level-substrate">Рубро-спінальний рівень палеокінетичних регуляцій</span>
+            </div>
+            <div class="level-afferentation">Провідна аферентація: пропріоцепція, вестибулярний апарат</div>
+            <p>Найдавніший в аспекті еволюційного філогенезу рівень А функціонує як фундамент для всієї системи просторової мобільності. Його основним анатомічним субстратом є структури ретикулярної формації стовбура мозку та рубро-спінальний тракт. Цей рівень забезпечує базову регуляцію м'язового тонусу, підтримання загальної пози та фонової збудливості м'язової тканини. Рівень А працює виключно в автономному, несвідомому режимі. Провідною аферентацією для нього є інформація від пропріорецепторів, розташованих безпосередньо у товщі м'язів та сухожиль, а також імпульсація від вестибулярного апарату внутрішнього вуха.</p>
+            <p>У контексті спортивної практики цей рівень самостійно не ініціює жодних цілеспрямованих дій, проте він формує необхідний фоновий тонус і забезпечує стан постійної готовності м'язового апарату до негайного скорочення. Саме рубро-спінальний рівень підтримує стабілізацію центру мас тіла під час виконання статичних силових вправ або складних акробатичних елементів. Будь-яка дисфункція цього найнижчого рівня призводить до повної втрати спроможності до нормальної координації дій на всіх вищих поверхах нервової системи.</p>
+          </div>
+          
+          <!-- Level B -->
+          <div class="level-card">
+            <div class="level-header">
+              <span class="level-name">Рівень Б</span>
+              <span class="level-substrate">Таламо-палідарний рівень синергій та моторних штампів</span>
+            </div>
+            <div class="level-afferentation">Провідна аферентація: пропріоцепція</div>
+            <p>Наступним у структурній ієрархії є рівень Б, який анатомічно базується на взаємодії блідої кулі та специфічних ядер таламуса. Його головним завданням є забезпечення внутрішньої пластичної координації рухів, яка не потребує узгодження з геометрією зовнішнього об'єктивного простору. Цей рівень оперує складними, філогенетично закріпленими або набутими м'язовими синергіями. Він забезпечує реалізацію ритмічних, циклічних рухових актів та бездоганно узгоджену співпрацю великих м'язових ансамблів. Інформаційною базою для рівня Б є вичерпна суглобово-м'язова пропріоцепція, яка дає нервовій системі інформацію про взаємне розташування частин власного тіла та швидкість їх відносного переміщення.</p>
+            <p>Рухові акти, якими безпосередньо керує цей рівень, відрізняються високим ступенем автоматизації, вираженою плавністю та біомеханічною оптимальністю. У спорті до компетенції таламо-палідарного рівня належить підтримання техніки бігового кроку, циклічних гребків у плаванні, педалювання у велосипедному спорті, а також виконання базових елементів художньої гімнастики. Визначальною характеристикою рівня Б є його абсолютна індиферентність до характеристик зовнішнього середовища: він продукує рух, спираючись виключно на інформацію зсередини організму, імітуючи рух у порожньому просторі.</p>
+          </div>
+          
+          <!-- Level C -->
+          <div class="level-card">
+            <div class="level-header">
+              <span class="level-name">Рівень В</span>
+              <span class="level-substrate">Пірамідно-стріатумний рівень просторового поля</span>
+            </div>
+            <div class="level-afferentation">Провідна аферентація: зорова, слухова, екстероцепція</div>
+            <p>Залучення до роботи рівня В знаменує собою кардинальний якісний стрибок в еволюції систем моторного контролю. Його морфологічною основою є смугасте тіло та первинна моторна кора головного мозку. Функціональна відмінність цього рівня полягає в тому, що він орієнтований виключно на зовнішній об'єктивний простір і має чітко виражений цільовий характер. Провідною аферентацією для рівня просторового поля є екстероцептивна інформація, насамперед візуальна, слухова та тактильна.</p>
+            <p>Рівень В дозволяє нервовій системі адаптувати параметри рухового акту до об'єктивних геометричних, фізичних та динамічних властивостей об'єктів навколишнього середовища. Саме цей рівень здійснює філігранний розрахунок кінематики для точного кидка м'яча у баскетбольний кошик, визначає траєкторію розбігу для стрибка в довжину та координує рухи тіла при подоланні перешкод зі змінною висотою. Він відповідальний за просторові локомоції, які вимагають миттєвої корекції у відповідь на непередбачувані зовнішні стимули. У спортивних іграх з м'ячем рівень В є критично важливим для забезпечення точного позиціонування тіла відносно рухомого об'єкта в умовах дефіциту часу.</p>
+          </div>
+          
+          <!-- Level D -->
+          <div class="level-card">
+            <div class="level-header">
+              <span class="level-name">Рівень Г</span>
+              <span class="level-substrate">Тім'яно-премоторний рівень смислових предметних дій</span>
+            </div>
+            <div class="level-afferentation">Провідна аферентація: комплексне топологічне сприйняття</div>
+            <p>Наступний рівень складності, рівень Г, локалізований у ділянках тім'яної та премоторної кори мозку. Його специфіка полягає в тому, що він відповідає не просто за механічні рухи у тривимірному просторі, а конструює предметні дії, які підпорядковані певному логічному смислу та кінцевій меті. Рухи, що керуються цим рівнем, мають структуру ланцюгів послідовних актів, які розв'язують комплексне завдання. Для премоторного рівня абсолютні геометричні розміри об'єкта відходять на другий план; першочергового значення набувають його топологічні властивості та функціональне призначення.</p>
+            <p>Класичними прикладами активності рівня Г у спорті є управління діями зі спеціалізованим інвентарем, такими як виконання ударів тенісною ракеткою, маніпуляції хокейною ключкою, виконання складнокоординованих прийомів у фехтуванні або ведення тактичного бою у боксі. Цей рівень бере на себе стратегічне планування послідовності моторного акту, підбираючи найефективніші моторні програми з доступного арсеналу. Під час освоєння принципово нової рухової навички саме тім'яно-премоторний рівень виступає у ролі провідного диригента, який свідомо контролює кожен мікроетап виконання. Цей контроль зберігається до того моменту, поки структурні деталі руху не будуть надійно автоматизовані та переведені під контроль нижчих фонових рівнів.</p>
+          </div>
+          
+          <!-- Level E -->
+          <div class="level-card">
+            <div class="level-header">
+              <span class="level-name">Рівень Д</span>
+              <span class="level-substrate">Рівень символічних координацій та ментальних репрезентацій</span>
+            </div>
+            <div class="level-afferentation">Провідна аферентація: абстрактне семантичне мислення</div>
+            <p>Найвищий кортикальний рівень управління рухом, рівень Д, безпосередньо інтегрований з процесами абстрактного мислення, мовленнєвої діяльності та символічної репрезентації навколишньої дійсності. У системі спортивної підготовки цей рівень відповідає за суто інтелектуальні компоненти діяльності: розуміння глобальної тактики гри, аналіз і дотримання правил, побудову ідеальної віртуальної моделі майбутнього руху та свідому комунікацію з тренерським складом. Рівень символічних координацій не надсилає прямих еферентних імпульсів до м'язових волокон; його функція полягає у формулюванні стратегічного плану та визначенні глобальної мети, яка згодом декомпозується нижчими корковими та підкірковими структурами на серію конкретних біомеханічних команд.</p>
+            <p>Сам процес формування спортивної майстерності можна розглядати як безперервний, динамічний перерозподіл функціональних обов'язків між описаними ієрархічними рівнями. На етапі початкового ознайомлення завдання аналізується та усвідомлюється на найвищих рівнях Д та Г, де відбувається визначення необхідного рухового складу та формування первинного еталону. У міру накопичення спроб та отримання сенсорного зворотного зв'язку відбувається процес стандартизації рухового акту. Свідомі фонові корекції поступово перемикаються у відповідні за своєю природою низові рівні. Цей процес передовіряння функцій радикально розвантажує вищі когнітивні центри від необхідності контролювати мікроелементи руху, роблячи його виконання максимально економічним, безпомилковим та стійким до внутрішніх і зовнішніх збурень.</p>
+          </div>
+          
+          <!-- Detailed Comparison Table -->
+          <h2 style="margin-top: var(--space-12);">Порівняльна характеристика рівнів управління рухами</h2>
+          
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Ієрархічний рівень</th>
+                  <th>Провідна анатомічна структура</th>
+                  <th>Тип сенсорної аферентації</th>
+                  <th>Специфіка прояву у спортивній діяльності</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="level-label">Рівень А (палеокінетичний)</td>
+                  <td>Ретикулярна формація стовбура мозку, рубро-спінальний тракт</td>
+                  <td>Пропріоцепція, вестибулярний апарат</td>
+                  <td>Стабілізація пози, забезпечення фонового м'язового тонусу, підтримання центру мас при статичних вправах</td>
+                </tr>
+                <tr>
+                  <td class="level-label">Рівень Б (синергічний)</td>
+                  <td>Бліда куля, ядра таламуса</td>
+                  <td>Пропріоцепція (суглобово-м'язове чуття)</td>
+                  <td>Стереотипні циклічні рухи, внутрішня пластика, біговий крок, плавальні гребки, педалювання</td>
+                </tr>
+                <tr>
+                  <td class="level-label">Рівень В (просторового поля)</td>
+                  <td>Смугасте тіло, первинна моторна кора</td>
+                  <td>Зорова, слухова, тактильна екстероцепція</td>
+                  <td>Прицільні рухи, подолання перешкод, кидки об'єктів у ціль, просторове позиціонування в ігрових видах</td>
+                </tr>
+                <tr>
+                  <td class="level-label">Рівень Г (предметних дій)</td>
+                  <td>Тім'яна та премоторна кора</td>
+                  <td>Комплексне топологічне сприйняття</td>
+                  <td>Складні тактичні ланцюги, маніпуляції зі спортивним інвентарем (ракетка, ключка), фехтування, бокс</td>
+                </tr>
+                <tr>
+                  <td class="level-label">Рівень Д (символічний)</td>
+                  <td>Асоціативні зони кори мозку (префронтальна кора)</td>
+                  <td>Абстрактне семантичне мислення, мовлення</td>
+                  <td>Стратегічне планування, розуміння тактичних схем і правил, віртуальне моделювання руху, комунікація з тренером</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Як відбувається «передовіряння» управління рухом?</h3>
+              <p>Зі зростанням майстерності контроль передається від вищих свідомих рівнів до нижчих автоматичних.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">Д → А</div>
+              <div class="data-label">Напрямок передачі контролю в процесі автоматизації навички</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Вищі рівні (Д, Г) звільняються для вирішення тактичних завдань, нижчі (Б, А) забезпечують бездоганне виконання.
+              </p>
+            </div>
+          </div>
+          
+        </article>
+        
+        <!-- Sticky Glossary Sidebar -->
+        <aside class="glossary-sidebar">
+          <h4>Глосарій рівнів управління</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="afferentation">Аферентація</div>
+            <div class="glossary-def">Потік сенсорних імпульсів, що надходить до ЦНС від рецепторів. Кожен рівень має свою «провідну аферентацію».</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="degrees-freedom">Ступені свободи</div>
+            <div class="glossary-def">Кількість незалежних параметрів руху в суглобах. Проблема координації — подолання їх надмірності.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="sensory-correction">Сенсорні корекції</div>
+            <div class="glossary-def">Механізм безперервного уточнення руху на основі зворотного зв'язку під час його виконання.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="synergy">Синергія</div>
+            <div class="glossary-def">Узгоджена робота великих м'язових груп для досягнення спільної мети. Основний спосіб дії рівня Б.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="extrapyramidal">Екстрапірамідна система</div>
+            <div class="glossary-def">Сукупність підкіркових структур (базальні ганглії, мозочок), що забезпечують автоматичну регуляцію рухів.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="pyramidal">Пірамідна система</div>
+            <div class="glossary-def">Корковий шлях (рівень В), що забезпечує свідомий контроль цілеспрямованих рухів у просторі.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="topology">Топологічне сприйняття</div>
+            <div class="glossary-def">Сприйняття функціональних властивостей предмета, а не його абсолютних розмірів. Ключове для рівня Г.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+<!-- Article Cards Navigation -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Продовжити читання</h3>
+  
+  <!-- Card 1: Stress -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='stress.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="50" cy="35" r="15" fill="none" stroke="#E6A817" stroke-width="2" opacity="0.5"/>
+        <circle cx="50" cy="35" r="25" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Вплив стресу на когнітивний контроль →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Нейродинаміка мигдалеподібного тіла та префронтальної кори</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Integration -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='integration.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <path d="M20,50 Q50,20 80,50" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="35" cy="38" r="4" fill="#D96C4A" opacity="0.5"/>
+        <circle cx="65" cy="38" r="4" fill="#E6A817" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Сенсомоторна інтеграція та антиципація →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Як мозок передбачає рух до його початку — механізми моторного резонансу</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 5 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Ключові джерела розділу</h5>
+      <ul class="reference-list">
+        <li id="ref-c1">[1] Бернштейн Н.А. (1947). <em>О построении движений</em>. Москва: Медгиз. — Фундаментальна праця, що заклала основи рівневої теорії управління рухами.</li>
+        <li id="ref-c2">[2] Bernstein, N.A. (1967). <em>The Co-ordination and Regulation of Movements</em>. Oxford: Pergamon Press.</li>
+        <li id="ref-c3">[3] Latash, M.L. (2012). <em>Fundamentals of Motor Control</em>. Academic Press. — Сучасний виклад проблеми надмірності ступенів свободи.</li>
+        <li id="ref-c4">[4] Shumway-Cook, A., & Woollacott, M.H. (2017). <em>Motor Control: Translating Research into Clinical Practice</em>. Lippincott Williams & Wilkins.</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5;">
+        © Психологія руху — Organic Precision Design System
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ рівні А→Б→В→Г→Д — ієрархія рухового контролю за Бернштейном
+  </div>
+  
+  <script src="main.js"></script>
+ <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>

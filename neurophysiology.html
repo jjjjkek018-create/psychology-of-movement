@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Нейрофізіологія моторного навчання — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* Background drawings (shared across all pages) */
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -20px) rotate(5deg); }
+      50% { transform: translate(-10px, -35px) rotate(-3deg); }
+      75% { transform: translate(-20px, -10px) rotate(8deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-25px, 15px) rotate(-7deg); }
+      66% { transform: translate(15px, 30px) rotate(4deg); }
+    }
+    
+    @keyframes floatBall3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(30px, -10px) rotate(6deg); }
+      40% { transform: translate(-15px, 25px) rotate(-4deg); }
+      60% { transform: translate(10px, -30px) rotate(3deg); }
+      80% { transform: translate(-30px, -5px) rotate(-6deg); }
+    }
+    
+    @keyframes spinBall {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulseNeuron {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.35; }
+    }
+    
+    .ball-1 { animation: floatBall1 18s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 22s ease-in-out infinite; }
+    .ball-3 { animation: floatBall3 25s ease-in-out infinite; }
+    .ball-4 { animation: floatBall1 20s ease-in-out infinite reverse; }
+    .ball-5 { animation: floatBall2 28s ease-in-out infinite; }
+    
+    .spin-slow { animation: spinBall 40s linear infinite; }
+    .spin-reverse { animation: spinBall 35s linear infinite reverse; }
+    .pulse-neuron { animation: pulseNeuron 4s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    /* Navigation */
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    .section-divider {
+      margin: var(--space-12) 0 var(--space-6);
+      border: none;
+      border-top: 1px solid var(--border-light);
+    }
+    
+    /* Graph container */
+    .graph-container {
+      background: var(--bg-secondary);
+      padding: var(--space-6);
+      border-radius: 4px;
+      margin: var(--space-8) 0;
+      border: 1px solid var(--border-light);
+    }
+    
+    .graph-title {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-4);
+      color: var(--accent-cool);
+    }
+    
+    .graph-canvas {
+      width: 100%;
+      height: auto;
+      background: var(--bg-primary);
+      border-radius: 2px;
+    }
+    
+    .graph-caption {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-3);
+      text-align: center;
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <!-- Playful Background Drawings -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Basketball -->
+      <g class="ball-1">
+        <circle cx="120" cy="180" r="40" fill="none" stroke="#D96C4A" stroke-width="1.8" opacity="0.6"/>
+        <path d="M95 158 Q120 172 145 158" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.5"/>
+        <path d="M98 195 Q120 182 142 195" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.5"/>
+        <line x1="120" y1="140" x2="120" y2="220" stroke="#D96C4A" stroke-width="1" opacity="0.4"/>
+      </g>
+      
+      <!-- Tennis ball -->
+      <g class="ball-2">
+        <circle cx="1000" cy="200" r="28" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.5"/>
+        <path d="M986 187 Q998 193 1014 187" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.4"/>
+        <path d="M984 210 Q998 204 1016 210" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="992" cy="192" r="1.5" fill="#E6A817" opacity="0.3"/>
+        <circle cx="1008" cy="205" r="1" fill="#E6A817" opacity="0.3"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-3">
+        <circle cx="350" cy="620" r="45" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+        <polygon points="350,590 362,598 362,614 350,622 338,614 338,598" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.3"/>
+        <polygon points="362,598 374,602 374,614 362,622" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.25"/>
+      </g>
+      
+      <!-- Volleyball -->
+      <g class="ball-4">
+        <circle cx="1050" cy="580" r="38" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.4"/>
+        <path d="M1022 562 Q1050 576 1078 562" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+        <path d="M1022 598 Q1050 584 1078 598" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+        <path d="M1032 552 Q1018 578 1032 608" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Baseball -->
+      <g class="ball-5">
+        <circle cx="800" cy="680" r="32" fill="none" stroke="#4A4540" stroke-width="1.5" opacity="0.35"/>
+        <path d="M778 667 Q786 680 778 693" fill="none" stroke="#E6A817" stroke-width="1.2" opacity="0.4" stroke-dasharray="3,3"/>
+        <path d="M822 667 Q814 680 822 693" fill="none" stroke="#E6A817" stroke-width="1.2" opacity="0.4" stroke-dasharray="3,3"/>
+      </g>
+      
+      <!-- Trajectory arcs -->
+      <path d="M80 120 Q280 50 480 180 Q680 310 880 150" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.2" stroke-dasharray="8,6"/>
+      <path d="M200 780 Q450 710 700 760 Q950 810 1150 730" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.15" stroke-dasharray="6,8"/>
+      
+      <!-- Neuron-like sparkles -->
+      <circle cx="500" cy="150" r="3" fill="#E6A817" opacity="0.25" class="pulse-neuron"/>
+      <circle cx="700" cy="300" r="2.5" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 1s;"/>
+      <circle cx="250" cy="450" r="2" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 2s;"/>
+      <circle cx="880" cy="420" r="3.5" fill="#E6A817" opacity="0.15" class="pulse-neuron" style="animation-delay: 0.5s;"/>
+      <circle cx="580" cy="720" r="2" fill="#E6A817" opacity="0.2" class="pulse-neuron" style="animation-delay: 1.5s;"/>
+      
+      <!-- Synaptic connection lines -->
+      <line x1="500" y1="150" x2="700" y2="300" stroke="#E6A817" stroke-width="0.5" opacity="0.1" stroke-dasharray="3,5"/>
+      <line x1="700" y1="300" x2="880" y2="420" stroke="#E6A817" stroke-width="0.5" opacity="0.08" stroke-dasharray="3,5"/>
+      
+      <!-- Rotating rings -->
+      <g class="spin-slow" transform="translate(850, 320)">
+        <ellipse cx="0" cy="0" rx="22" ry="14" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.2"/>
+        <ellipse cx="0" cy="0" rx="22" ry="14" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.15" transform="rotate(60)"/>
+        <ellipse cx="0" cy="0" rx="22" ry="14" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.15" transform="rotate(120)"/>
+      </g>
+      
+      <g class="spin-reverse" transform="translate(200, 400)">
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.18"/>
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.12" transform="rotate(45)"/>
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.12" transform="rotate(90)"/>
+      </g>
+      
+      <!-- Brain icon (stylized) -->
+      <g opacity="0.1" transform="translate(60, 80) scale(0.9)">
+        <path d="M0,20 Q-5,0 10,-10 Q25,-15 35,-5 Q45,5 40,20 Q35,35 20,30 Q10,28 5,25 Z" 
+              fill="none" stroke="#2A5C82" stroke-width="2"/>
+        <path d="M10,-5 Q15,-12 25,-8" fill="none" stroke="#2A5C82" stroke-width="1.5"/>
+        <path d="M5,10 Q12,5 18,12" fill="none" stroke="#2A5C82" stroke-width="1.2"/>
+        <path d="M30,5 Q38,-2 42,8" fill="none" stroke="#2A5C82" stroke-width="1.2"/>
+      </g>
+      
+      <!-- Stick figure athlete (Muybridge style) -->
+      <g opacity="0.13" stroke="#2A5C82" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="620" cy="500" r="7"/>
+        <line x1="620" y1="507" x2="620" y2="535"/>
+        <line x1="620" y1="515" x2="642" y2="498"/>
+        <line x1="620" y1="515" x2="602" y2="525"/>
+        <line x1="620" y1="535" x2="635" y2="565"/>
+        <line x1="620" y1="535" x2="605" y2="560"/>
+        <circle cx="650" cy="492" r="4.5" stroke="#E6A817" stroke-width="1"/>
+      </g>
+      
+      <!-- Velocity vectors -->
+      <g opacity="0.15">
+        <line x1="420" y1="320" x2="480" y2="300" stroke="#D96C4A" stroke-width="1.5"/>
+        <polygon points="480,300 472,295 474,305" fill="#D96C4A"/>
+        
+        <line x1="420" y1="340" x2="390" y2="368" stroke="#2A5C82" stroke-width="1.2"/>
+        <polygon points="390,368 398,363 394,373" fill="#2A5C82"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="index.html" class="nav-button nav-button-outline">
+        ← Вступ
+      </a>
+      <div class="nav-buttons">
+        <a href="conceptualisation.html" class="nav-button">
+          Рівні управління →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Розділ 1</div>
+      <h1>Нейрофізіологічні основи моторного навчання та досвід-залежна пластичність мозку</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <!-- Section 1: Structural and Functional Adaptation -->
+          <h2 id="structural-adaptation">Процеси структурної та функціональної адаптації нервової системи</h2>
+          
+          <p>Набуття нових рухових компетенцій ініціює каскад процесів нейропластичності, які жорстко детерміновані набутим руховим досвідом і реєструються як на клітинному, так і на системному рівнях макроорганізації нервової тканини. Систематичне багаторазове повторення рухових патернів стимулює локальний синаптогенез, посилення синаптичної передачі через збільшення щільності рецепторів, а також мієлінізацію аксонів, що в сукупності сприяє підвищенню швидкості проходження нервового імпульсу відповідними провідними шляхами. У спортсменів високої кваліфікації спостерігаються статистично достовірні зміни об'єму сірої речовини та показників функціональної коннективності в сенсомоторних зонах кори, структурах лімбічної системи та тканинах мозочка.</p>
+          
+          <p>Первинна моторна кора виконує критично важливу функцію у процесах консолідації рухової пам'яті. Нейрохімічні та морфологічні модифікації у цій анатомічній зоні забезпечують довготривале збереження закодованої інформації про амплітудні, швидкісні та просторові характеристики засвоєного руху. Специфіка цих адаптаційних змін прямо залежить від біомеханічного та інформаційного характеру обраного виду спорту. Спортсмени, які спеціалізуються на так званих відкритих видах спорту, де умови навколишнього середовища є нестабільними і вимагають постійної корекції дій (наприклад, спортивні ігри, єдиноборства), демонструють значно вищу глобальну ефективність передачі інформації всередині нейронних мереж, відповідальних за візуальну увагу та сенсомоторний контроль. Нейронні мережі таких індивідів характеризуються коротшими середніми шляхами передачі сигналів між вузлами, що є свідченням загальної оптимізації інформаційних процесів у мозку.</p>
+          
+          <!-- Graph 1: Neural Efficiency Comparison -->
+          <div class="graph-container">
+            <div class="graph-title">Рис. 1. Порівняння активації моторної кори у новачків та експертів</div>
+            <canvas id="graph-neural-efficiency" class="graph-canvas" width="700" height="300"></canvas>
+            <div class="graph-caption">Зниження площі гемодинамічної активації у експертів свідчить про нейронну ефективність — менші енергетичні витрати на виконання тієї самої рухової задачі.</div>
+          </div>
+          
+          <!-- Section 2: Stage Dynamics -->
+          <h2 id="stage-dynamics">Стадійна динаміка формування моторної навички та феномен нейронної ефективності</h2>
+          
+          <p>Процес моторного навчання розгортається у вигляді закономірної послідовної зміни трьох базових стадій: когнітивної, асоціативної та автономної. На ранніх етапах засвоєння навички, що відповідають когнітивній стадії, виконання незнайомого руху потребує значного свідомого контролю з боку індивіда. У цей період методи функціональної нейровізуалізації фіксують інтенсивну дифузну активацію префронтальної кори та тім'яних зон, що забезпечує аналіз надхідної візуальної інформації, планування геометричної траєкторії та свідому експліцитну корекцію кінематичних помилок. Кортико-стріатальна система в цей час є домінуючою, вона формує первинні нестабільні енграми моторної пам'яті. Це експліцитне навчання дозволяє швидко адаптуватися до вимог завдання, але вимагає непропорційно великих затрат енергії.</p>
+          
+          <p>У міру багаторазового цілеспрямованого повторення рухове завдання поступово переходить на асоціативну стадію, де відбувається мікроструктурне уточнення м'язових координацій. Амплітуди рухів стають більш стабільними, руховий акт втрачає скутість, кількість грубих просторових помилок експоненціально зменшується, а енергетичні витрати організму починають оптимізуватися. На фінальній, автономній стадії навичка набуває статусу стійкого автоматизму. Свідомий контроль рухових деталей редукується майже повністю, що дозволяє спортсмену звільнити обчислювальні ресурси кори для вирішення паралельних тактичних завдань високого рівня. Безпосереднє управління просторово-часовими параметрами руху передається кортико-мозочковій системі. Імпліцитне навчання, що супроводжує цю стадію, продукує надзвичайно міцні рухові патерни, які важко піддаються вербальному опису самим виконавцем, але відрізняються найвищою швидкістю реалізації та високою стійкістю до деструктивних стресових факторів зовнішнього середовища.</p>
+          
+          <p>Дані, отримані шляхом поєднання поведінкових вимірювань із багатовимірним аналізом мозкової активності, переконливо доводять, що тривале моторне тренування неминуче призводить до формування феномену нейронної ефективності. Під час виконання стандартизованих завдань на прийняття моторнокогнітивних рішень мозок осіб з експертним рівнем підготовки демонструє суттєво меншу загальну площу гемодинамічної активації порівняно з індивідами без відповідного досвіду. Специфічне зниження залученості нижньої тім'яної кори та інших широких сенсомоторних регіонів у досвідчених атлетів підтверджує наукову тезу про те, що їхні нейронні мережі оптимізовані виключно для швидкої, селективної та безпомилкової обробки специфічної для їхньої діяльності інформації.</p>
+          
+          <!-- Stage Dynamics Table -->
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Етап засвоєння рухової навички</th>
+                <th>Домінуюча нейронна система</th>
+                <th>Характер активації структур головного мозку</th>
+                <th>Рівень когнітивного навантаження</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Когнітивний (початковий)</td>
+                <td>Кортико-стріатальна</td>
+                <td>Дифузна активація; двобічна потилична частка, ліва задня частка мозочка, ліва середня скронева звивина, префронтальна кора</td>
+                <td>Максимальний; свідомий контроль кожної фази руху</td>
+              </tr>
+              <tr>
+                <td>Асоціативний (проміжний)</td>
+                <td>Перехідна взаємодія</td>
+                <td>Зменшення площі активації; фокусування на первинній моторній та премоторній корі</td>
+                <td>Середній; часткове вивільнення ресурсів уваги</td>
+              </tr>
+              <tr>
+                <td>Автономний (експертний)</td>
+                <td>Кортико-мозочкова</td>
+                <td>Високоспецифічна локалізована активація; зниження залучення нижньої тім'яної кори</td>
+                <td>Мінімальний; автоматизоване виконання, імпліцитне керування</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <!-- Graph 2: Learning Curve / Stage Progression -->
+          <div class="graph-container">
+            <div class="graph-title">Рис. 2. Динаміка когнітивного навантаження та ефективності виконання за стадіями</div>
+            <canvas id="graph-learning-curve" class="graph-canvas" width="700" height="280"></canvas>
+            <div class="graph-caption">Зі зростанням автоматизації когнітивне навантаження знижується, а стабільність виконання зростає експоненційно.</div>
+          </div>
+          
+          <!-- Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Скільки повторень потрібно для автоматизації навички?</h3>
+              <p>Міф про «10 000 годин» — спрощення. Реальність: якість повторень і варіативність практики важливіші за кількість.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">300–500</div>
+              <div class="data-label">цілеспрямованих повторень для початкової консолідації простого рухового патерну</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Для складно-координаційних навичок — тисячі повторень з варіативністю контексту.
+              </p>
+            </div>
+          </div>
+          
+        </article>
+        
+        <!-- Sticky Glossary Sidebar -->
+        <aside class="glossary-sidebar">
+          <h4>Нейрофізіологічний глосарій</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="synaptogenesis">Синаптогенез</div>
+            <div class="glossary-def">Утворення нових синаптичних контактів між нейронами у відповідь на навчання та досвід.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="myelination">Мієлінізація</div>
+            <div class="glossary-def">Формування мієлінової оболонки навколо аксонів, що прискорює проведення нервових імпульсів.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="cortico-striatal">Кортико-стріатальна система</div>
+            <div class="glossary-def">Нейронний контур, що з'єднує кору з базальними гангліями. Домінує на початкових етапах навчання.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="cortico-cerebellar">Кортико-мозочкова система</div>
+            <div class="glossary-def">Контур «кора — мозочок». Відповідає за автоматизоване, плавне виконання рухів на експертному рівні.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="explicit-learning">Експліцитне навчання</div>
+            <div class="glossary-def">Свідоме засвоєння правил і закономірностей руху. Енергоємне, але швидке.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="implicit-learning">Імпліцитне навчання</div>
+            <div class="glossary-def">Несвідоме накопичення рухового досвіду без вербалізації правил. Формує надзвичайно стійкі навички.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="neural-efficiency">Нейронна ефективність</div>
+            <div class="glossary-def">Зниження метаболічних витрат мозку при виконанні добре засвоєної дії. Маркер експертності.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+      <!-- Article Cards Navigation -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Продовжити читання</h3>
+  
+  <!-- Card 1: Conceptualisation -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='conceptualisation.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <path d="M20,50 L30,20 L40,30 L50,15 L60,35 L70,25 L80,45" fill="none" stroke="#D96C4A" stroke-width="2" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Багаторівнева система управління рухами →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Ієрархія рівнів А→Б→В→Г→Д за Бернштейном</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 8 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Stress -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='stress.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="50" cy="35" r="15" fill="none" stroke="#E6A817" stroke-width="2" opacity="0.5"/>
+        <circle cx="50" cy="35" r="25" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Вплив стресу на когнітивний контроль →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Нейродинаміка мигдалеподібного тіла та префронтальної кори</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Ключові джерела розділу</h5>
+      <ul class="reference-list">
+        <li id="ref-n1">[1] Doyon, J., & Benali, H. (2005). Reorganization and plasticity in the adult brain during learning of motor skills. <em>Current Opinion in Neurobiology</em>, 15(2), 161-167.</li>
+        <li id="ref-n2">[2] Dayan, E., & Cohen, L.G. (2011). Neuroplasticity subserving motor skill learning. <em>Neuron</em>, 72(3), 443-454.</li>
+        <li id="ref-n3">[3] Fitts, P.M., & Posner, M.I. (1967). <em>Human Performance</em>. Brooks/Cole. (Класична модель трьох стадій навчання).</li>
+        <li id="ref-n4">[4] Haier, R.J., et al. (1992). Regional glucose metabolic changes after learning a complex visuospatial/motor task: a PET study. <em>Brain Research</em>, 570(1-2), 134-143. (Перше дослідження нейронної ефективності).</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5;">
+        © Психологія руху — Organic Precision Design System
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ м'ячі • синапси • траєкторії — нейрофізіологія в русі
+  </div>
+  
+  <!-- Graphs Rendering Script -->
+  <script>
+    (function() {
+      // Graph 1: Neural Efficiency Comparison (Bar Chart)
+      const canvas1 = document.getElementById('graph-neural-efficiency');
+      if (canvas1) {
+        const ctx = canvas1.getContext('2d');
+        const w = canvas1.width, h = canvas1.height;
+        
+        // Clear
+        ctx.fillStyle = '#F9F6F0';
+        ctx.fillRect(0, 0, w, h);
+        
+        // Grid
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 5; i++) {
+          const y = 40 + (i * 45);
+          ctx.beginPath();
+          ctx.moveTo(60, y);
+          ctx.lineTo(w - 30, y);
+          ctx.stroke();
+        }
+        
+        // Bars
+        const barWidth = 80;
+        const noviceHeight = 190;
+        const expertHeight = 95;
+        
+        // Novice bar
+        ctx.fillStyle = 'rgba(217, 108, 74, 0.7)';
+        ctx.fillRect(150, 265 - noviceHeight, barWidth, noviceHeight);
+        ctx.fillStyle = '#D96C4A';
+        ctx.font = '12px "Tiempos", Georgia, serif';
+        ctx.fillText('Новачок', 160, 285);
+        
+        // Expert bar
+        ctx.fillStyle = 'rgba(42, 92, 130, 0.7)';
+        ctx.fillRect(370, 265 - expertHeight, barWidth, expertHeight);
+        ctx.fillStyle = '#2A5C82';
+        ctx.font = '12px "Tiempos", Georgia, serif';
+        ctx.fillText('Експерт', 385, 285);
+        
+        // Y-axis labels
+        ctx.fillStyle = '#6B6560';
+        ctx.font = '10px "Tiempos", Georgia, serif';
+        ctx.fillText('100%', 30, 78);
+        ctx.fillText('75%', 30, 123);
+        ctx.fillText('50%', 30, 168);
+        ctx.fillText('25%', 30, 213);
+        ctx.fillText('0%', 38, 263);
+        
+        // Title
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '11px "Mackinac", serif';
+        ctx.fillText('Відносна площа активації моторної кори (%)', 200, 295);
+        
+        // Y-axis line
+        ctx.strokeStyle = '#4A4540';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(60, 40);
+        ctx.lineTo(60, 265);
+        ctx.stroke();
+      }
+      
+      // Graph 2: Learning Curve (Line Chart)
+      const canvas2 = document.getElementById('graph-learning-curve');
+      if (canvas2) {
+        const ctx = canvas2.getContext('2d');
+        const w = canvas2.width, h = canvas2.height;
+        
+        ctx.fillStyle = '#F9F6F0';
+        ctx.fillRect(0, 0, w, h);
+        
+        // Grid
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.08)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+          const y = 40 + (i * 50);
+          ctx.beginPath();
+          ctx.moveTo(70, y);
+          ctx.lineTo(w - 30, y);
+          ctx.stroke();
+        }
+        
+        // Cognitive Load Curve (decreasing)
+        ctx.beginPath();
+        ctx.moveTo(90, 60);
+        ctx.bezierCurveTo(200, 80, 350, 150, 600, 220);
+        ctx.strokeStyle = '#D96C4A';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        
+        // Performance Curve (increasing)
+        ctx.beginPath();
+        ctx.moveTo(90, 230);
+        ctx.bezierCurveTo(200, 210, 350, 130, 600, 50);
+        ctx.strokeStyle = '#2A5C82';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        
+        // Stage markers
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '10px "Tiempos", Georgia, serif';
+        ctx.fillText('Когнітивна', 120, 245);
+        ctx.fillText('Асоціативна', 290, 245);
+        ctx.fillText('Автономна', 500, 245);
+        
+        // Vertical dashed lines
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(220, 40);
+        ctx.lineTo(220, 230);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(420, 40);
+        ctx.lineTo(420, 230);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Legend
+        ctx.fillStyle = '#D96C4A';
+        ctx.fillRect(480, 15, 12, 4);
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '9px "Tiempos", Georgia, serif';
+        ctx.fillText('Когнітивне навантаження', 496, 20);
+        
+        ctx.fillStyle = '#2A5C82';
+        ctx.fillRect(480, 28, 12, 4);
+        ctx.fillStyle = '#4A4540';
+        ctx.fillText('Ефективність виконання', 496, 33);
+        
+        // Axes labels
+        ctx.fillStyle = '#6B6560';
+        ctx.font = '10px "Tiempos", Georgia, serif';
+        ctx.fillText('Час / Кількість повторень →', 280, 260);
+      }
+    })();
+  </script>
+  
+  <script src="main.js"></script>
+  <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Узагальнення та підсумки — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -20px) rotate(5deg); }
+      50% { transform: translate(-10px, -35px) rotate(-3deg); }
+      75% { transform: translate(-20px, -10px) rotate(8deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-25px, 15px) rotate(-7deg); }
+      66% { transform: translate(15px, 30px) rotate(4deg); }
+    }
+    
+    @keyframes floatBall3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(30px, -10px) rotate(6deg); }
+      40% { transform: translate(-15px, 25px) rotate(-4deg); }
+      60% { transform: translate(10px, -30px) rotate(3deg); }
+      80% { transform: translate(-30px, -5px) rotate(-6deg); }
+    }
+    
+    @keyframes spinBall {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulseSynthesis {
+      0%, 100% { opacity: 0.08; }
+      50% { opacity: 0.2; }
+    }
+    
+    .ball-1 { animation: floatBall1 18s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 22s ease-in-out infinite; }
+    .ball-3 { animation: floatBall3 25s ease-in-out infinite; }
+    .ball-4 { animation: floatBall1 20s ease-in-out infinite reverse; }
+    .ball-5 { animation: floatBall2 28s ease-in-out infinite; }
+    
+    .spin-slow { animation: spinBall 40s linear infinite; }
+    .spin-reverse { animation: spinBall 35s linear infinite reverse; }
+    .pulse-synthesis { animation: pulseSynthesis 5s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    /* Synthesis diagram */
+    .synthesis-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin: var(--space-8) 0;
+      padding: var(--space-6);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+    
+    .synthesis-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+    
+    .synthesis-node {
+      padding: var(--space-3) var(--space-5);
+      background: var(--bg-primary);
+      border-radius: 30px;
+      border: 1.5px solid;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      text-align: center;
+      min-width: 160px;
+    }
+    
+    .synthesis-node.level-a { border-color: #D96C4A; background: rgba(217, 108, 74, 0.04); }
+    .synthesis-node.level-b { border-color: #E6A817; background: rgba(230, 168, 23, 0.04); }
+    .synthesis-node.level-c { border-color: #2A5C82; background: rgba(42, 92, 130, 0.04); }
+    
+    .synthesis-arrow {
+      font-size: 20px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+    
+    .synthesis-arrow.down {
+      transform: rotate(90deg);
+    }
+    
+    /* Key takeaways grid */
+    .takeaways-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-4);
+      margin: var(--space-8) 0;
+    }
+    
+    .takeaway-card {
+      background: var(--bg-secondary);
+      padding: var(--space-5);
+      border-radius: 8px;
+      border-top: 3px solid;
+      transition: transform var(--duration-base);
+    }
+    
+    .takeaway-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .takeaway-card.card-1 { border-top-color: #D96C4A; }
+    .takeaway-card.card-2 { border-top-color: #2A5C82; }
+    .takeaway-card.card-3 { border-top-color: #E6A817; }
+    .takeaway-card.card-4 { border-top-color: #4A4540; }
+    
+    .takeaway-card h4 {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-3);
+      color: var(--text-primary);
+    }
+    
+    .takeaway-card p {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    /* Integration visualization */
+    .integration-map {
+      width: 100%;
+      margin: var(--space-8) 0;
+    }
+    
+    .map-canvas {
+      width: 100%;
+      height: auto;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: var(--space-4);
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+    
+    /* Back to top link */
+    .back-to-top {
+      text-align: center;
+      margin: var(--space-8) 0;
+    }
+    
+    .back-to-top a {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--border-light);
+      padding-bottom: var(--space-1);
+    }
+    
+    .back-to-top a:hover {
+      color: var(--accent-warm-solid);
+      border-bottom-color: var(--accent-warm-solid);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Drawings - Synthesis Theme -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Central synthesis circle -->
+      <circle cx="600" cy="400" r="120" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.15" class="pulse-synthesis"/>
+      <circle cx="600" cy="400" r="80" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.1" class="pulse-synthesis" style="animation-delay: 1s;"/>
+      <circle cx="600" cy="400" r="50" fill="none" stroke="#E6A817" stroke-width="0.6" opacity="0.08" class="pulse-synthesis" style="animation-delay: 2s;"/>
+      
+      <!-- Connecting lines from center to all balls (integration) -->
+      <line x1="600" y1="400" x2="150" y2="200" stroke="#2A5C82" stroke-width="0.5" opacity="0.1" stroke-dasharray="4,4"/>
+      <line x1="600" y1="400" x2="1000" y2="250" stroke="#D96C4A" stroke-width="0.5" opacity="0.1" stroke-dasharray="4,4"/>
+      <line x1="600" y1="400" x2="300" y2="650" stroke="#E6A817" stroke-width="0.5" opacity="0.1" stroke-dasharray="4,4"/>
+      <line x1="600" y1="400" x2="900" y2="600" stroke="#4A4540" stroke-width="0.5" opacity="0.1" stroke-dasharray="4,4"/>
+      
+      <!-- Basketball -->
+      <g class="ball-1">
+        <circle cx="150" cy="200" r="35" fill="none" stroke="#D96C4A" stroke-width="1.8" opacity="0.5"/>
+        <path d="M128 182 Q150 194 172 182" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.4"/>
+        <line x1="150" y1="165" x2="150" y2="235" stroke="#D96C4A" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-2">
+        <circle cx="1000" cy="250" r="32" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+        <polygon points="1000,230 1008,236 1008,248 1000,254 992,248 992,236" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.25"/>
+      </g>
+      
+      <!-- Tennis ball -->
+      <g class="ball-3">
+        <circle cx="300" cy="650" r="28" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.4"/>
+        <path d="M286 637 Q298 643 314 637" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Volleyball -->
+      <g class="ball-4">
+        <circle cx="900" cy="600" r="36" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.35"/>
+        <path d="M874 585 Q900 598 926 585" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.3"/>
+      </g>
+      
+      <!-- Baseball -->
+      <g class="ball-5">
+        <circle cx="450" cy="120" r="30" fill="none" stroke="#4A4540" stroke-width="1.5" opacity="0.3"/>
+        <path d="M430 108 Q436 120 430 132" fill="none" stroke="#E6A817" stroke-width="1" opacity="0.3" stroke-dasharray="3,3"/>
+      </g>
+      
+      <!-- Hierarchical level arcs (Bernstein's tower - rotated) -->
+      <g opacity="0.1">
+        <path d="M100 500 L100 550" stroke="#2A5C82" stroke-width="1.5"/>
+        <text x="85" y="520" font-family="Georgia, serif" font-size="12" fill="#2A5C82">А</text>
+        <path d="M100 400 L100 450" stroke="#2A5C82" stroke-width="1.5"/>
+        <text x="85" y="420" font-family="Georgia, serif" font-size="12" fill="#2A5C82">Б</text>
+        <path d="M100 300 L100 350" stroke="#2A5C82" stroke-width="1.5"/>
+        <text x="85" y="320" font-family="Georgia, serif" font-size="12" fill="#2A5C82">В</text>
+        <path d="M100 200 L100 250" stroke="#2A5C82" stroke-width="1.5"/>
+        <text x="85" y="220" font-family="Georgia, serif" font-size="12" fill="#2A5C82">Г</text>
+        <path d="M100 100 L100 150" stroke="#2A5C82" stroke-width="1.5"/>
+        <text x="85" y="120" font-family="Georgia, serif" font-size="12" fill="#2A5C82">Д</text>
+      </g>
+      
+      <!-- Mirror neuron pairs -->
+      <g class="pulse-synthesis" style="animation-delay: 1.5s;">
+        <circle cx="750" cy="150" r="15" fill="none" stroke="#2A5C82" stroke-width="1.2" opacity="0.2"/>
+        <circle cx="790" cy="150" r="15" fill="none" stroke="#2A5C82" stroke-width="1.2" opacity="0.2"/>
+        <line x1="765" y1="150" x2="775" y2="150" stroke="#2A5C82" stroke-width="0.8" opacity="0.15"/>
+      </g>
+      
+      <!-- Stress response arc -->
+      <path d="M1050 450 Q1100 500 1050 550" fill="none" stroke="#E6A817" stroke-width="1" opacity="0.12" stroke-dasharray="5,4"/>
+      
+      <!-- Neuron sparkles -->
+      <circle cx="500" cy="300" r="2.5" fill="#E6A817" opacity="0.15" class="pulse-synthesis"/>
+      <circle cx="700" cy="500" r="2" fill="#D96C4A" opacity="0.12" class="pulse-synthesis" style="animation-delay: 0.8s;"/>
+      
+      <!-- Rotating rings -->
+      <g class="spin-slow" transform="translate(550, 550)">
+        <ellipse cx="0" cy="0" rx="25" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.6" opacity="0.1"/>
+        <ellipse cx="0" cy="0" rx="25" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.5" opacity="0.08" transform="rotate(60)"/>
+        <ellipse cx="0" cy="0" rx="25" ry="15" fill="none" stroke="#2A5C82" stroke-width="0.5" opacity="0.08" transform="rotate(120)"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="psychology.html" class="nav-button nav-button-outline">
+        ← Психологія тренера
+      </a>
+      <div class="nav-buttons">
+        <a href="index.html" class="nav-button">
+          На початок →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Підсумковий розділ</div>
+      <h1>Узагальнення та підсумки</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <p>Успішне вирішення багатокомпонентних біомеханічних та тактичних завдань у сфері сучасної спортивної діяльності є закономірним наслідком ідеально збалансованої інтеграції складних нейрофізіологічних процесів та психоемоційних станів. Внутрішня архітектура будь-якої рухової дії розбудовується на міцному фундаменті ієрархічної багаторівневої системи управління. У цій системі закладено принцип поступової еволюційної передачі безпосереднього контролю за параметрами руху від вищих, енергоємних свідомих кортикальних центрів до автономних, високошвидкісних підкіркових структур, що в комплексі забезпечує максимальну економічність та бездоганну надійність виконання технічних елементів. Унікальна здатність центральної нервової системи до структурної пластичності є тим біологічним ґрунтом, який уможливлює таку трансформацію, дозволяючи мозку архітектурно реорганізовувати власні нейронні мережі у відповідь на обсяг та інтенсивність специфічних тренувальних стимулів.</p>
+          
+          <p>Збереження високої змагальної результативності атлета в умовах екстремального психологічного стресу жорстко детермінується його фізіологічною спроможністю утримувати баланс між підкірковою емоційною реактивністю, генерованою мигдалеподібним тілом, та свідомим гальмівним контролем з боку префронтальної кори. Раціональне використання когнітивних ресурсів дозволяє індивіду безперервно фокусувати гостроту уваги виключно на об'єктивних параметрах зовнішнього середовища, забезпечуючи своєчасну зорово-рухову інтеграцію та математично точну антиципацію наступних кроків супротивника.</p>
+          
+          <p>Поряд із фізіологією спортсмена, педагогічна ефективність діяльності тренера виходить далеко за тісні межі простої ретрансляції біомеханічних інструкцій або тактичних схем. Ця діяльність концептуалізується як надзвичайно складний психологічний багаторівневий процес міжособистісної інтеракції, де справжня емпатія стає головним інструментом впливу. Ця емпатія має під собою залізобетонне нейробіологічне підґрунтя, що матеріалізується у вигляді скоординованої роботи системи коркових дзеркальних нейронів та явища міжособистісної частотної синхронізації ритмів мозку. Професійна спроможність наставника застосовувати методи управління стресом для профілактики власного емоційного виснаження, використовувати виключно науково обґрунтовані доказові методики стимуляції нейропластичності та свідомо формувати монолітні спільні ментальні моделі всередині колективу становить квінтесенцію його педагогічної майстерності. Саме цей інтегральний комплекс перетворює первинні фізіологічні задатки окремих спортсменів у стабільний, прогнозований результат найвищого експертного рівня. Глибоке системне розуміння всіх наведених у цьому аналізі нейробіологічних та психологічних механізмів управління відкриває принципово нові можливості для кардинального вдосконалення методології фізичного виховання і дозволяє безмежно розширювати горизонти застосування досягнень сучасної когнітивної нейронауки з метою повної оптимізації та розкриття людського фізичного й інтелектуального потенціалу.</p>
+          
+          <!-- Synthesis Diagram -->
+          <div class="synthesis-diagram">
+            <div style="text-align: center; font-family: 'Mackinac', serif; color: var(--accent-cool); margin-bottom: var(--space-2);">
+              Інтегративна модель спортивної майстерності
+            </div>
+            
+            <div class="synthesis-row">
+              <div class="synthesis-node level-a">Нейропластичність</div>
+              <span class="synthesis-arrow">→</span>
+              <div class="synthesis-node level-b">Автоматизація навички</div>
+              <span class="synthesis-arrow">→</span>
+              <div class="synthesis-node level-c">Нейронна ефективність</div>
+            </div>
+            
+            <div class="synthesis-row">
+              <span class="synthesis-arrow down">↓</span>
+              <span class="synthesis-arrow down">↓</span>
+              <span class="synthesis-arrow down">↓</span>
+            </div>
+            
+            <div class="synthesis-row">
+              <div class="synthesis-node level-c">Рівні управління (А→Д)</div>
+              <span class="synthesis-arrow">+</span>
+              <div class="synthesis-node level-a">Стрес-контроль (ПФК/Amygdala)</div>
+              <span class="synthesis-arrow">+</span>
+              <div class="synthesis-node level-b">Антиципація</div>
+            </div>
+            
+            <div class="synthesis-row">
+              <span class="synthesis-arrow down">↓</span>
+            </div>
+            
+            <div class="synthesis-row">
+              <div class="synthesis-node level-a">Дзеркальні нейрони</div>
+              <span class="synthesis-arrow">→</span>
+              <div class="synthesis-node level-b">Спільні ментальні моделі</div>
+              <span class="synthesis-arrow">→</span>
+              <div class="synthesis-node level-c">Командна синергія</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px dashed var(--border-light);">
+              <span style="font-family: 'Mackinac', serif; font-size: var(--text-md); color: var(--accent-warm-solid);">⚫ Пік спортивної результативності ⚫</span>
+            </div>
+          </div>
+          
+          <!-- Key Takeaways Grid -->
+          <h2 style="margin-top: var(--space-12);">Ключові висновки</h2>
+          
+          <div class="takeaways-grid">
+            <div class="takeaway-card card-1">
+              <h4>Нейропластичність — основа майстерності</h4>
+              <p>Систематичне тренування спричиняє структурні зміни в мозку: синаптогенез, мієлінізацію, реорганізацію коркових карт. Мозок експерта працює економніше — феномен нейронної ефективності.</p>
+            </div>
+            
+            <div class="takeaway-card card-2">
+              <h4>Ієрархія управління рухом</h4>
+              <p>Від рубро-спінального рівня (тонус) до символічного (стратегія) — кожен рівень має власну аферентацію та функцію. Майстерність — це «передовіряння» контролю нижчим рівням.</p>
+            </div>
+            
+            <div class="takeaway-card card-3">
+              <h4>Стрес — амбівалентний фактор</h4>
+              <p>Гіперактивація мигдалеподібного тіла руйнує навичку («choking»). Тренована префронтальна кора забезпечує контроль. Баланс Amygdala-ПФК визначає стійкість.</p>
+            </div>
+            
+            <div class="takeaway-card card-4">
+              <h4>Антиципація та моторний резонанс</h4>
+              <p>Експерти «читають» рух до його завершення. Дзеркальні нейрони створюють внутрішню симуляцію дій. Quiet Eye — маркер експертності.</p>
+            </div>
+            
+            <div class="takeaway-card card-1">
+              <h4>Тренер як психолог</h4>
+              <p>Емпатія, профілактика вигоряння, трансфер знань. Дзеркальні нейрони та міжособистісна синхронізація — нейробіологічний базис ефективної комунікації.</p>
+            </div>
+            
+            <div class="takeaway-card card-2">
+              <h4>Команда як надорганізм</h4>
+              <p>Спільні ментальні моделі (тактика, ролі, алгоритми) дозволяють діяти без слів. Колективна самоефективність підвищує стресостійкість усієї команди.</p>
+            </div>
+          </div>
+          
+          <!-- Integration Map Canvas -->
+          <div class="integration-map">
+            <canvas id="integration-canvas" class="map-canvas" width="700" height="300"></canvas>
+            <div class="graph-caption" style="margin-top: var(--space-3);">
+              Концептуальна карта: від нейробіології до командної ефективності
+            </div>
+          </div>
+          
+          <!-- Final Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Що є кінцевою метою всієї системи підготовки?</h3>
+              <p>Не просто фізична форма, а інтеграція нейробіологічних, психологічних та соціальних факторів.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">100%</div>
+              <div class="data-label">потенціалу розкривається лише при системному підході</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Ізольоване тренування фізичних якостей без урахування нейропсихологічних механізмів обмежує прогрес.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Final paragraph -->
+          <p style="margin-top: var(--space-8); font-style: italic; color: var(--text-muted);">
+            Психологія руху — це не просто наука про те, як ми рухаємося. Це наука про те, як мозок, тіло та соціальне середовище взаємодіють для досягнення того, що здається неможливим. Від окремого нейрона до командної гри — кожен рівень має значення.
+          </p>
+          
+        </article>
+        
+        <!-- Sticky Glossary - Final Synthesis -->
+        <aside class="glossary-sidebar">
+          <h4>Синтез понять</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Нейропластичність</div>
+            <div class="glossary-def">Здатність мозку змінюватися під впливом досвіду. Основа всього навчання.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Нейронна ефективність</div>
+            <div class="glossary-def">Зниження енерговитрат мозку при виконанні автоматизованої навички.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Рівні Бернштейна</div>
+            <div class="glossary-def">А → Б → В → Г → Д: від тонусу до стратегії.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Amygdala vs ПФК</div>
+            <div class="glossary-def">Емоційна реактивність vs свідомий контроль. Баланс = стійкість.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Антиципація</div>
+            <div class="glossary-def">Передбачення — ключова перевага експерта.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Дзеркальні нейрони</div>
+            <div class="glossary-def">Біологічна основа емпатії та навчання через спостереження.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Спільні ментальні моделі</div>
+            <div class="glossary-def">Колективний розум команди. Дозволяє діяти синхронно.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Quiet Eye</div>
+            <div class="glossary-def">Стабільна фіксація погляду перед дією. Маркер майстерності.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Трансфер знань</div>
+            <div class="glossary-def">Міст між наукою та практикою спорту.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+      <!-- Back to top -->
+      <div class="back-to-top">
+        <a href="#">↑ Повернутися до початку сторінки ↑</a>
+      </div>
+      
+<!-- Final Navigation Cards -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Переглянути всі розділи</h3>
+  
+  <!-- Card 1: Introduction -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='index.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <text x="50" y="42" font-family="Georgia, serif" font-size="24" fill="#D96C4A" text-anchor="middle" opacity="0.6">В</text>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Вступ →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Концептуальні основи нейробіології рухової активності</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 3 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Neurophysiology -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='neurophysiology.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="30" cy="35" r="8" fill="#D96C4A" opacity="0.4"/>
+        <circle cx="70" cy="35" r="8" fill="#2A5C82" opacity="0.4"/>
+        <line x1="38" y1="35" x2="62" y2="35" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Нейрофізіологія моторного навчання →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Процеси структурної та функціональної адаптації нервової системи</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 6 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 3: Conceptualisation -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='conceptualisation.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <path d="M20,50 L30,20 L40,30 L50,15 L60,35 L70,25 L80,45" fill="none" stroke="#D96C4A" stroke-width="2" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Багаторівнева система управління рухами →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Від рубро-спінального рівня до символічних координацій</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 8 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 4: Stress -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='stress.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="50" cy="35" r="15" fill="none" stroke="#E6A817" stroke-width="2" opacity="0.5"/>
+        <circle cx="50" cy="35" r="25" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3" stroke-dasharray="4,4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Вплив стресу на когнітивний контроль →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Нейродинаміка мигдалеподібного тіла та префронтальної кори</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 5: Integration -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='integration.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <path d="M20,50 Q50,20 80,50" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="35" cy="38" r="4" fill="#D96C4A" opacity="0.5"/>
+        <circle cx="65" cy="38" r="4" fill="#E6A817" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Сенсомоторна інтеграція та антиципація →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Як мозок передбачає рух до його початку — механізми моторного резонансу</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 5 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 6: Psychology -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='psychology.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="40" cy="30" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="60" cy="40" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <line x1="48" y1="30" x2="52" y2="40" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Психологія тренерської роботи →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Трансфер знань, емоційне вигоряння та спільні ментальні моделі</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Загальна бібліографія</h5>
+      <ul class="reference-list">
+        <li>Бернштейн Н.А. (1947). <em>О построении движений</em>. Москва: Медгиз.</li>
+        <li>Doyon, J., & Benali, H. (2005). Reorganization and plasticity in the adult brain. <em>Current Opinion in Neurobiology</em>.</li>
+        <li>Yarrow, K., Brown, P., & Krakauer, J.W. (2009). Inside the brain of an elite athlete. <em>Nature Reviews Neuroscience</em>.</li>
+        <li>Rizzolatti, G., & Craighero, L. (2004). The mirror-neuron system. <em>Annual Review of Neuroscience</em>.</li>
+        <li>Vickers, J.N. (2007). <em>Perception, Cognition, and Decision Training</em>. Human Kinetics.</li>
+        <li>Cannon-Bowers, J.A., & Salas, E. (2001). Reflections on shared cognition. <em>Journal of Organizational Behavior</em>.</li>
+        <li>Arnsten, A.F.T. (2009). Stress signalling pathways. <em>Nature Reviews Neuroscience</em>.</li>
+        <li>Maslach, C., & Jackson, S.E. (1981). The measurement of experienced burnout.</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5; text-align: center;">
+        © Психологія руху — Organic Precision Design System<br>
+        Інтегративний підхід до нейробіології спортивної майстерності
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ нейропластичність • рівні • стрес • антиципація • команда — синтез
+  </div>
+  
+  <!-- Integration Map Canvas Script -->
+  <script>
+    (function() {
+      const canvas = document.getElementById('integration-canvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      
+      ctx.fillStyle = '#F4EFE6';
+      ctx.fillRect(0, 0, w, h);
+      
+      // Draw concept map
+      const nodes = [
+        { x: 120, y: 80, label: 'Нейропластичність', color: '#D96C4A' },
+        { x: 350, y: 50, label: 'Автоматизація', color: '#E6A817' },
+        { x: 580, y: 80, label: 'Нейронна ефективність', color: '#2A5C82' },
+        { x: 120, y: 180, label: 'Рівні Бернштейна', color: '#2A5C82' },
+        { x: 350, y: 180, label: 'Стрес-контроль', color: '#D96C4A' },
+        { x: 580, y: 180, label: 'Антиципація', color: '#E6A817' },
+        { x: 200, y: 260, label: 'Дзеркальні нейрони', color: '#2A5C82' },
+        { x: 500, y: 260, label: 'Спільні моделі', color: '#D96C4A' },
+        { x: 350, y: 320, label: 'КОМАНДНА СИНЕРГІЯ', color: '#4A4540' }
+      ];
+      
+      // Draw connections
+      ctx.strokeStyle = 'rgba(42, 92, 130, 0.2)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      
+      // Connections array [from, to]
+      const connections = [
+        [0, 1], [1, 2], [0, 3], [1, 4], [2, 5],
+        [3, 4], [4, 5], [3, 6], [4, 7], [5, 7],
+        [6, 8], [7, 8], [6, 7]
+      ];
+      
+      connections.forEach(([from, to]) => {
+        ctx.beginPath();
+        ctx.moveTo(nodes[from].x, nodes[from].y);
+        ctx.lineTo(nodes[to].x, nodes[to].y);
+        ctx.stroke();
+      });
+      
+      ctx.setLineDash([]);
+      
+      // Draw nodes
+      nodes.forEach((node, i) => {
+        // Node circle
+        ctx.fillStyle = i === 8 ? 'rgba(74, 69, 64, 0.15)' : `${node.color}15`;
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = i === 8 ? 2.5 : 1.8;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, i === 8 ? 40 : 30, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Label
+        ctx.fillStyle = '#2A2A2A';
+        ctx.font = i === 8 ? 'bold 11px "Mackinac", serif' : '10px "Tiempos", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const lines = node.label.split(' ');
+        if (lines.length > 1) {
+          ctx.fillText(lines[0], node.x, node.y - 6);
+          ctx.fillText(lines[1], node.x, node.y + 8);
+        } else {
+          ctx.fillText(node.label, node.x, node.y);
+        }
+      });
+      
+      // Title
+      ctx.fillStyle = '#4A4540';
+      ctx.font = '9px "Tiempos", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Інтегративна модель: від нейрона до команди', w/2, h - 10);
+    })();
+  </script>
+  
+  <script src="main.js"></script>
+   <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>

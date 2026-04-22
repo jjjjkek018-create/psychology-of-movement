@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Психологія тренерської роботи — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -20px) rotate(5deg); }
+      50% { transform: translate(-10px, -35px) rotate(-3deg); }
+      75% { transform: translate(-20px, -10px) rotate(8deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-25px, 15px) rotate(-7deg); }
+      66% { transform: translate(15px, 30px) rotate(4deg); }
+    }
+    
+    @keyframes floatBall3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(30px, -10px) rotate(6deg); }
+      40% { transform: translate(-15px, 25px) rotate(-4deg); }
+      60% { transform: translate(10px, -30px) rotate(3deg); }
+      80% { transform: translate(-30px, -5px) rotate(-6deg); }
+    }
+    
+    @keyframes spinBall {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulseSync {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.3; }
+    }
+    
+    @keyframes mirrorPulse {
+      0%, 100% { transform: scale(1); opacity: 0.15; }
+      50% { transform: scale(1.05); opacity: 0.25; }
+    }
+    
+    .ball-1 { animation: floatBall1 18s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 22s ease-in-out infinite; }
+    .ball-3 { animation: floatBall3 25s ease-in-out infinite; }
+    .ball-4 { animation: floatBall1 20s ease-in-out infinite reverse; }
+    .ball-5 { animation: floatBall2 28s ease-in-out infinite; }
+    
+    .spin-slow { animation: spinBall 40s linear infinite; }
+    .spin-reverse { animation: spinBall 35s linear infinite reverse; }
+    .pulse-sync { animation: pulseSync 3s ease-in-out infinite; }
+    .mirror-pulse { animation: mirrorPulse 4s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    /* Section dividers */
+    .section-divider {
+      margin: var(--space-12) 0 var(--space-6);
+      border: none;
+      border-top: 1px solid var(--border-light);
+    }
+    
+    /* Burnout indicator */
+    .burnout-gauge {
+      display: flex;
+      gap: var(--space-2);
+      margin: var(--space-6) 0;
+    }
+    
+    .burnout-stage {
+      flex: 1;
+      padding: var(--space-3);
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      text-align: center;
+      font-size: var(--text-xs);
+      border-left: 3px solid;
+      transition: all var(--duration-base);
+    }
+    
+    .burnout-stage.stage-1 { border-left-color: #2A5C82; }
+    .burnout-stage.stage-2 { border-left-color: #E6A817; }
+    .burnout-stage.stage-3 { border-left-color: #D96C4A; }
+    
+    .burnout-stage .stage-name {
+      font-family: 'Mackinac', serif;
+      font-weight: 500;
+      margin-bottom: var(--space-1);
+    }
+    
+    /* Mirror neuron diagram */
+    .mirror-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-6);
+      padding: var(--space-6);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin: var(--space-6) 0;
+    }
+    
+    .mirror-person {
+      text-align: center;
+    }
+    
+    .mirror-person .label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-2);
+    }
+    
+    .mirror-arrow {
+      font-size: 24px;
+      color: var(--accent-cool);
+      opacity: 0.5;
+    }
+    
+    .mirror-brain {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(42, 92, 130, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--accent-cool);
+    }
+    
+    .mirror-brain.active {
+      background: rgba(42, 92, 130, 0.15);
+      border: 2px solid var(--accent-cool);
+      animation: mirrorPulse 4s ease-in-out infinite;
+    }
+    
+    /* Shared mental models table */
+    .mental-models-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-6) 0;
+    }
+    
+    .mental-models-table th {
+      font-family: 'Mackinac', serif;
+      font-weight: 500;
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-tertiary);
+      border-bottom: 2px solid var(--accent-cool-light);
+    }
+    
+    .mental-models-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+    
+    .mental-models-table tr:hover td {
+      background: rgba(242, 166, 141, 0.04);
+    }
+    
+    /* Sync visualization */
+    .sync-visualization {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-8);
+      margin: var(--space-6) 0;
+      padding: var(--space-6);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+    
+    .sync-wave {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .wave-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+    
+    .wave-canvas {
+      width: 200px;
+      height: 60px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Drawings with Social/Mirror Theme -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Mirror neuron pairs (connected circles) -->
+      <g class="mirror-pulse">
+        <circle cx="300" cy="150" r="20" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="360" cy="150" r="20" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3"/>
+        <line x1="320" y1="150" x2="340" y2="150" stroke="#2A5C82" stroke-width="1" opacity="0.2" stroke-dasharray="4,3"/>
+      </g>
+      
+      <g class="mirror-pulse" style="animation-delay: 1.5s;">
+        <circle cx="800" cy="400" r="18" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.25"/>
+        <circle cx="860" cy="400" r="18" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.25"/>
+        <line x1="818" y1="400" x2="842" y2="400" stroke="#D96C4A" stroke-width="1" opacity="0.18" stroke-dasharray="4,3"/>
+      </g>
+      
+      <!-- Team synchronization waves -->
+      <path d="M100 650 Q150 620 200 650 Q250 680 300 650 Q350 620 400 650" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.15" class="pulse-sync"/>
+      <path d="M100 670 Q150 640 200 670 Q250 700 300 670 Q350 640 400 670" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.1" class="pulse-sync" style="animation-delay: 0.5s;"/>
+      
+      <!-- Basketball -->
+      <g class="ball-1">
+        <circle cx="120" cy="250" r="35" fill="none" stroke="#D96C4A" stroke-width="1.8" opacity="0.5"/>
+        <path d="M98 232 Q120 244 142 232" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.4"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-2">
+        <circle cx="1000" cy="200" r="32" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+        <polygon points="1000,180 1008,186 1008,198 1000,204 992,198 992,186" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.25"/>
+      </g>
+      
+      <!-- Tennis ball -->
+      <g class="ball-3">
+        <circle cx="500" cy="700" r="28" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.4"/>
+        <path d="M486 687 Q498 693 514 687" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Volleyball -->
+      <g class="ball-4">
+        <circle cx="850" cy="650" r="36" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.35"/>
+        <path d="M824 635 Q850 648 876 635" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.3"/>
+      </g>
+      
+      <!-- Baseball -->
+      <g class="ball-5">
+        <circle cx="150" cy="550" r="30" fill="none" stroke="#4A4540" stroke-width="1.5" opacity="0.3"/>
+        <path d="M130 538 Q136 550 130 562" fill="none" stroke="#E6A817" stroke-width="1" opacity="0.3" stroke-dasharray="3,3"/>
+      </g>
+      
+      <!-- Empathy/brain connection lines -->
+      <path d="M400 300 Q500 350 600 300" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.12" stroke-dasharray="5,5"/>
+      <path d="M600 500 Q700 450 800 500" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.1" stroke-dasharray="5,5"/>
+      
+      <!-- Neuron sparkles -->
+      <circle cx="450" cy="200" r="2.5" fill="#E6A817" opacity="0.2" class="pulse-sync"/>
+      <circle cx="700" cy="300" r="2" fill="#D96C4A" opacity="0.18" class="pulse-sync" style="animation-delay: 1s;"/>
+      <circle cx="350" cy="450" r="2.5" fill="#2A5C82" opacity="0.15" class="pulse-sync" style="animation-delay: 2s;"/>
+      
+      <!-- Rotating rings -->
+      <g class="spin-slow" transform="translate(650, 150)">
+        <ellipse cx="0" cy="0" rx="20" ry="12" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.12"/>
+      </g>
+      
+      <g class="spin-reverse" transform="translate(400, 600)">
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.1"/>
+      </g>
+      
+      <!-- Stick figure coach and athlete -->
+      <g opacity="0.1" stroke="#2A5C82" stroke-width="1.5" fill="none" stroke-linecap="round">
+        <!-- Coach -->
+        <circle cx="550" cy="480" r="7"/>
+        <line x1="550" y1="487" x2="550" y2="520"/>
+        <line x1="550" y1="495" x2="570" y2="480"/>
+        <line x1="550" y1="495" x2="535" y2="505"/>
+        
+        <!-- Athlete -->
+        <circle cx="620" cy="500" r="7"/>
+        <line x1="620" y1="507" x2="620" y2="540"/>
+        <line x1="620" y1="515" x2="640" y2="500"/>
+        
+        <!-- Connection -->
+        <line x1="557" y1="490" x2="613" y2="500" stroke="#E6A817" stroke-width="1" stroke-dasharray="3,3"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="integration.html" class="nav-button nav-button-outline">
+        ← Сенсомоторна інтеграція
+      </a>
+      <div class="nav-buttons">
+        <a href="conclusions.html" class="nav-button">
+          Висновки →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Розділ 5</div>
+      <h1>Психологічні засади тренерської роботи, трансфер знань та явище емоційного вигоряння</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <p>Об'єктивна ефективність багаторічної спортивної підготовки перебуває у прямій залежності від рівня психологічної компетентності тренерського складу та якості міжособистісної взаємодії всередині системи «тренер — спортсмен». Спортивне тренування за своєю суттю є високоспецифічним різновидом педагогічної діяльності, де трансляція технічних навичок, стимуляція мотиваційної сфери та оперативна корекція психоемоційних станів вимагають від фахівця ґрунтовного розуміння законів функціонування людської психіки.</p>
+          
+          <p>Діяльність фахівця в галузі спорту супроводжується хронічними емоційними та інтелектуальними перевантаженнями. Постійний тиск необхідності досягнення результату, потреба в оперативному управлінні конфліктними ситуаціями та висока щільність комунікативних контактів створюють сприятливе підґрунтя для виникнення та прогресування синдрому психологічного емоційного вигоряння. Цей синдром у сучасній психології розглядається як форма глибокої особистісної деформації, що є наслідком тривалого дисбалансу між витраченими фахівцем ресурсами нервової системи та суб'єктивним або об'єктивним результатом діяльності у системі «людина — людина». Клінічна картина вигоряння включає симптоми тотального емоційного виснаження, редукції почуття професійних досягнень та прогресуючої деперсоналізації, що безпосередньо та згубно впливає на здатність тренера до емпатійного співпереживання та адекватної педагогічної оцінки ситуацій під час тренувального процесу.</p>
+          
+          <!-- Burnout Stages -->
+          <div class="burnout-gauge">
+            <div class="burnout-stage stage-1">
+              <div class="stage-name">Стадія 1</div>
+              <div>Емоційне виснаження</div>
+              <div style="font-size: 10px; opacity: 0.7; margin-top: 4px;">Хронічна втома, дратівливість</div>
+            </div>
+            <div class="burnout-stage stage-2">
+              <div class="stage-name">Стадія 2</div>
+              <div>Деперсоналізація</div>
+              <div style="font-size: 10px; opacity: 0.7; margin-top: 4px;">Цинізм, формальне ставлення</div>
+            </div>
+            <div class="burnout-stage stage-3">
+              <div class="stage-name">Стадія 3</div>
+              <div>Редукція досягнень</div>
+              <div style="font-size: 10px; opacity: 0.7; margin-top: 4px;">Втрата сенсу, неефективність</div>
+            </div>
+          </div>
+          
+          <p>Справжня педагогічна майстерність тренера концептуалізується як інтегральна єдність чотирьох базових компонентів: стійкої педагогічної спрямованості особистості, фундаментальної системи теоретичних знань, практичних дидактичних умінь та наявності специфічних професійно важливих якостей. Імплементація постулатів гуманістичної та позитивної психології у щоденну практику орієнтує весь процес підготовки виключно на актуалізацію прихованого внутрішнього потенціалу індивіда, цілеспрямоване формування мислення, орієнтованого на безперервне зростання, та виховання непохитної психологічної стійкості. Фахівець, здатний змоделювати сприятливе мотиваційне середовище та гарантувати спортсмену право на автономію у прийнятті тактичних рішень, запускає механізм трансформації нестабільної зовнішньої мотивації у глибинну внутрішню, що визнається критично важливим чинником для досягнення довготривалого прогресу.</p>
+          
+          <p>Процес трансферу знань у площині спортивної науки є багатовимірним і складним феноменом. Тренери вищої кваліфікації повинні володіти компетенцією самостійно інтегрувати новітню наукову інформацію про нейробіологічні механізми адаптації у практичні умови тренувального процесу. Паралельно з цим необхідно здійснювати постійну критичну ревізію та елімінацію розповсюджених псевдонаукових уявлень або нейроміфів щодо механізмів роботи мозку. Впровадження виключно доказових методів практики, таких як свідоме варіювання умов виконання вправи, використання ефекту контекстуальної інтерференції та методів імпліцитного навчання, дозволяє багаторазово підвищити коефіцієнт корисної дії кожної тренувальної сесії.</p>
+          
+          <div class="section-divider"></div>
+          
+          <h2 id="mirror-neurons">Нейробіологічні механізми соціальної перцепції: система дзеркальних нейронів</h2>
+          
+          <p>Нейрофізіологічний базис, який забезпечує можливість успішної та продуктивної комунікативної взаємодії між наставником та учнем, формується завдяки функціонуванню специфічної коркової системи дзеркальних нейронів. Ця унікальна мережа, яка морфологічно локалізується переважно у ділянках премоторної кори та нижній тім'яній часточці мозку, демонструє властивість активуватися як під час безпосереднього фізичного виконання дії самим індивідом, так і під час пасивного візуального спостереження за аналогічною дією, що виконується іншим суб'єктом. Система дзеркальних нейронів відповідає за механізми автоматичного, дорефлексивного декодування моторних намірів та складних емоційних станів партнера по комунікації.</p>
+          
+          <!-- Mirror Neuron Diagram -->
+          <div class="mirror-diagram">
+            <div class="mirror-person">
+              <div class="mirror-brain">🧠</div>
+              <div class="label">Тренер (демонструє рух)</div>
+            </div>
+            <div class="mirror-arrow">⟹</div>
+            <div class="mirror-person">
+              <div class="mirror-brain active">🧠</div>
+              <div class="label">Спортсмен (спостерігає)</div>
+            </div>
+            <div style="font-size: var(--text-xs); color: var(--text-muted); max-width: 200px;">
+              ← Дзеркальні нейрони активуються в обох, створюючи «моторний резонанс»
+            </div>
+          </div>
+          
+          <p>У процесі активної та сфокусованої взаємодії в системі «тренер — спортсмен» виникає специфічний фізіологічний феномен міжособистісної нейронної синхронізації. Сутність цього феномену полягає в тому, що електроенцефалографічні показники хвильової активності мозку обох індивідів починають демонструвати часову узгодженість. Важливо розуміти, що така синхронізація не свідчить про наявність ідентичних думок, а виступає в ролі контекстно-залежного біологічного маркера, який об'єктивно відображає ступінь концентрації, спільної залученості та координації уваги в межах виконання конкретного моторного або теоретичного завдання.</p>
+          
+          <!-- Synchronization Visualization -->
+          <div class="sync-visualization">
+            <div class="sync-wave">
+              <div class="wave-label">Тренер (ЕЕГ)</div>
+              <canvas id="wave-coach" class="wave-canvas" width="200" height="60"></canvas>
+            </div>
+            <div class="sync-wave">
+              <div class="wave-label">Спортсмен (ЕЕГ)</div>
+              <canvas id="wave-athlete" class="wave-canvas" width="200" height="60"></canvas>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+              <span style="font-size: 24px; color: var(--accent-cool);">≈</span>
+              <span style="font-size: 10px; color: var(--text-muted);">синхронізація</span>
+            </div>
+          </div>
+          
+          <p>Наявність стійкої міжособистісної нейронної синхронізації багаторазово посилює процеси соціальної перцепції, під якою розуміється здатність нервової системи безпомилково сприймати та правильно інтерпретувати вербальні та невербальні поведінкові реакції іншої особи. Розвинена емпатійна здатність тренера, яка на біологічному рівні отримує постійне підкріплення через резонансну активність коркових дзеркальних систем, виступає фундаментом для встановлення атмосфери глибокої психологічної довіри. Коли спортсмен перебуває у середовищі абсолютної довіри, його психіка стає значно більш відкритою до конструктивного аналізу помилок. Він отримує здатність до сміливого експериментування з новими, біомеханічно складнішими руховими програмами, оскільки активність його мигдалеподібного тіла знижується, а страх перед можливим покаранням за тимчасову невдачу нівелюється.</p>
+          
+          <p>Навіть експерименти у сфері моделювання штучного інтелекту демонструють, що архітектура, побудована за принципами функціонування біологічних дзеркальних нейронів, здатна генерувати емпатійно-подібні контури. Такі алгоритми починають демонструвати внутрішню мотивацію до кооперативної поведінки та спільного прийняття рішень, що ще раз підкреслює універсальність цього біологічного механізму для побудови ефективних соціальних систем, якою є будь-яка спортивна команда.</p>
+          
+          <div class="section-divider"></div>
+          
+          <h2 id="shared-mental-models">Спільні ментальні моделі як системний фактор командної ефективності</h2>
+          
+          <p>У командних видах спорту підсумкова ефективність результату ніколи не є простою арифметичною сумою показників індивідуальної майстерності чи нейронної ефективності окремо взятих гравців. Кінцевий успіх команди жорстко детермінується рівнем колективної координації та просторово-часової синхронізації спільних рухових дій. Сучасна парадигма спортивної психології та когнітивних наук виокремлює концепт спільних ментальних моделей як абсолютно фундаментальну категорію для аналізу механізмів групової спортивної взаємодії.</p>
+          
+          <p>Спільні ментальні моделі репрезентують собою внутрішньо узгоджені, високоструктуровані системи знань, тактичних концепцій та очікувань, які є спільними для всіх без винятку членів спортивного колективу. Ці когнітивні конструкції містять деталізовану інформацію про затверджені тактичні схеми розіграшів, жорсткий розподіл функціональних обов'язків кожного гравця на майданчику, слабкі та сильні сторони команди суперника, а також алгоритми реагування на найбільш ймовірні сценарії розвитку змагальної ситуації. Наявність ідентичних спільних моделей функціонування надає гравцям унікальну здатність діяти в єдиному інформаційному просторі, безпомилково передбачати переміщення партнерів без необхідності витрачати час на голосову або візуальну комунікацію, та миттєво перебудовувати геометричний малюнок гри у відповідь на тактичні дії опонентів.</p>
+          
+          <!-- Shared Mental Models Table -->
+          <table class="mental-models-table">
+            <thead>
+              <tr>
+                <th>Структурний компонент спільної ментальної моделі</th>
+                <th>Змістове наповнення компонента</th>
+                <th>Вплив на фізіологічну та тактичну результативність</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Усвідомлення специфіки завдань</strong></td>
+                <td>Глибоке розуміння фізичних меж простору, правил поведінки та макростратегії</td>
+                <td>Жорстка стандартизація моторних реакцій, уникнення технічного браку на рівні управління просторовим полем</td>
+              </tr>
+              <tr>
+                <td><strong>Абсолютна рольова ясність</strong></td>
+                <td>Безперечне усвідомлення гравцем власного функціоналу та зони відповідальності партнерів</td>
+                <td>Мінімізація стану когнітивної невизначеності, радикальне прискорення процесу прийняття рішень під час стресу</td>
+              </tr>
+              <tr>
+                <td><strong>Рівень колективної самоефективності</strong></td>
+                <td>Інтегральна віра колективу в об'єктивну спроможність подолати спротив суперника</td>
+                <td>Зростання загальної згуртованості, підвищення порогу толерантності до гострого стресу та втоми</td>
+              </tr>
+              <tr>
+                <td><strong>Модель алгоритмів командної взаємодії</strong></td>
+                <td>Точне знання невербальних патернів комунікації та способів миттєвої підстраховки</td>
+                <td>Повна ліквідація феномену соціальних лінощів, максимізація особистої та колективної відповідальності за результат</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p>Створення та підтримка актуальності таких когнітивних моделей вимагає від тренерського штабу систематичної та філігранної аналітичної роботи. Результати прикладних експериментальних досліджень підтверджують статистичну закономірність: колективи, які інвестують час у системний розвиток цих колективних уявлень шляхом проведення деталізованих брифінгів, спільного аналізу помилок за допомогою відеоповторів та багаторазового моделювання складних тактичних ситуацій у тренувальному процесі, демонструють значно вищі показники командної згуртованості.</p>
+          
+          <p>З позиції нейрофізіологічного забезпечення, процес функціонування спільних ментальних моделей спирається на раніше описані механізми антиципації та коркової симуляції моторного акту. Фізіологічна здатність атлета здійснити точну ментальну симуляцію ймовірних переміщень свого партнера по команді, інтенсивно задіюючи для цього ресурси власної премоторної та тім'яної кори (рівень смислових дій за Бернштейном), виступає біологічною гарантією плавного просторово-часового узгодження їхніх спільних переміщень по майданчику. Коли параметри ментальних моделей усіх учасників досягають максимальної синхронізації, колектив починає функціонувати як єдиний безвідмовний надорганізм, внутрішня структура якого дозволяє компенсувати індивідуальні помилки або затримки реакції за рахунок предиктивної підстраховки з боку партнерів. І навпаки, раптова дезінтеграція цих спільних інформаційних структур під деструктивним впливом змагального стресу неминуче призводить до руйнації командної взаємодії, хаотизації переміщень та стрімкого падіння загальної ефективності.</p>
+          
+          <p>Дослідження поведінкових патернів в умовах необхідності здійснення стратегічного вибору, проведені із застосуванням математичного апарату теорії ігор, доводять, що рівень міжособистісної довіри в колективі є тим критичним модератором, який визначає напрямок командної динаміки. У змодельованих ситуаціях, які базуються на принципах абсолютної довіри, учасники експерименту завжди схильні обирати кооперативні стратегії, орієнтовані на спільне благо. Водночас штучне провокування стану тривожності та невизначеності моментально стимулює активацію егоїстичних рішень, підпорядкованих інстинкту самозахисту. Систематична позитивна взаємодія в межах тривалого тренувального макроциклу активує процеси соціального навчання: відсоток рішень, спрямованих на кооперацію, поступово зростає, надійно закріплюючи спільні ментальні конструкти та формуючи непробивний психоемоційний щит команди.</p>
+          
+          <!-- Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Що відрізняє команду-чемпіона від просто талановитих гравців?</h3>
+              <p>Спільні ментальні моделі — «колективний мозок», що діє синхронно без слів.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">↑ 40-60%</div>
+              <div class="data-label">зростання ефективності командних взаємодій при розвинених спільних ментальних моделях</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Дані мета-аналізу досліджень командних видів спорту (баскетбол, футбол, хокей).
+              </p>
+            </div>
+          </div>
+          
+        </article>
+        
+        <!-- Sticky Glossary -->
+        <aside class="glossary-sidebar">
+          <h4>Психологічний глосарій</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Емоційне вигоряння</div>
+            <div class="glossary-def">Синдром виснаження, деперсоналізації та редукції досягнень внаслідок хронічного стресу.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Трансфер знань</div>
+            <div class="glossary-def">Процес перенесення наукової інформації у практичну тренерську діяльність.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Дзеркальні нейрони</div>
+            <div class="glossary-def">Нейрони, що активуються як при виконанні дії, так і при спостереженні за нею. Основа емпатії.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Нейронна синхронізація</div>
+            <div class="glossary-def">Узгодження хвильової активності мозку двох людей під час спільної діяльності.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Спільні ментальні моделі</div>
+            <div class="glossary-def">Колективні знання про тактику, ролі та взаємодію, що дозволяють команді діяти як єдине ціле.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Колективна самоефективність</div>
+            <div class="glossary-def">Спільна віра команди у здатність досягти поставлених цілей.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Соціальні лінощі</div>
+            <div class="glossary-def">Зниження індивідуальних зусиль при роботі в групі. Долається через чітку рольову ясність.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Емпатія</div>
+            <div class="glossary-def">Здатність розуміти та розділяти емоційний стан іншої людини. Нейробіологічно базується на дзеркальних нейронах.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+<!-- Article Cards Navigation -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Продовжити читання</h3>
+  
+  <!-- Card 1: Conclusions -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='conclusions.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="50" cy="35" r="20" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="50" cy="35" r="12" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="50" cy="35" r="4" fill="#E6A817" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Висновки →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Узагальнення та підсумки: інтегративна модель спортивної майстерності</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 4 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Return to Introduction -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='index.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <text x="50" y="42" font-family="Georgia, serif" font-size="24" fill="#D96C4A" text-anchor="middle" opacity="0.6">В</text>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Повернутися до вступу →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Концептуальні основи нейробіології рухової активності</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 3 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Ключові джерела розділу</h5>
+      <ul class="reference-list">
+        <li>[1] Maslach, C., & Jackson, S.E. (1981). The measurement of experienced burnout. <em>Journal of Organizational Behavior</em>.</li>
+        <li>[2] Rizzolatti, G., & Craighero, L. (2004). The mirror-neuron system. <em>Annual Review of Neuroscience</em>.</li>
+        <li>[3] Cannon-Bowers, J.A., & Salas, E. (2001). Reflections on shared cognition. <em>Journal of Organizational Behavior</em>.</li>
+        <li>[4] Dumas, G., et al. (2010). Inter-brain synchronization during social interaction. <em>PLOS ONE</em>.</li>
+        <li>[5] Deci, E.L., & Ryan, R.M. (2000). Self-determination theory. <em>American Psychologist</em>.</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5;">
+        © Психологія руху — Organic Precision Design System
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ дзеркальні нейрони • вигоряння • спільні ментальні моделі
+  </div>
+  
+  <!-- Wave Synchronization Animation -->
+  <script>
+    (function() {
+      const coachCanvas = document.getElementById('wave-coach');
+      const athleteCanvas = document.getElementById('wave-athlete');
+      
+      if (!coachCanvas || !athleteCanvas) return;
+      
+      const coachCtx = coachCanvas.getContext('2d');
+      const athleteCtx = athleteCanvas.getContext('2d');
+      
+      let phase = 0;
+      
+      function drawWave(ctx, width, height, offset = 0) {
+        ctx.clearRect(0, 0, width, height);
+        
+        // Background
+        ctx.fillStyle = '#F9F6F0';
+        ctx.fillRect(0, 0, width, height);
+        
+        // Grid line
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.1)';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(0, height/2);
+        ctx.lineTo(width, height/2);
+        ctx.stroke();
+        
+        // Wave
+        ctx.beginPath();
+        ctx.strokeStyle = '#2A5C82';
+        ctx.lineWidth = 2;
+        
+        for (let x = 0; x < width; x += 2) {
+          const t = (x / width) * Math.PI * 4 + phase + offset;
+          const y = height/2 + Math.sin(t) * 20;
+          
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        
+        // Secondary wave (alpha rhythm)
+        ctx.beginPath();
+        ctx.strokeStyle = '#D96C4A';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 3]);
+        
+        for (let x = 0; x < width; x += 3) {
+          const t = (x / width) * Math.PI * 6 + phase * 0.5 + offset;
+          const y = height/2 + Math.cos(t) * 12;
+          
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      
+      function animate() {
+        phase += 0.03;
+        
+        drawWave(coachCtx, 200, 60, 0);
+        drawWave(athleteCtx, 200, 60, 0.5); // Slight phase shift but synchronized pattern
+        
+        requestAnimationFrame(animate);
+      }
+      
+      animate();
+    })();
+  </script>
+  
+  <script src="main.js"></script>
+   <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>

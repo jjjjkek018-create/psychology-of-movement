@@ -1,0 +1,589 @@
+/* style.css — Organic Precision / The Soft Lab */
+
+/* ---------- FONTS ---------- */
+/* P22 Mackinac Pro (Headlines) - Humanist warmth with geometric clarity */
+@font-face {
+  font-family: 'Mackinac';
+  src: local('P22 Mackinac Pro'),
+       local('P22MackinacPro-Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback stack that mimics Mackinac's rounded precision */
+@font-face {
+  font-family: 'Mackinac-Fallback';
+  src: local('Georgia');
+  size-adjust: 98%;
+  ascent-override: 92%;
+  descent-override: 24%;
+}
+
+/* Tiempos Text (Body) - Humanist serif for long-form immersion */
+@font-face {
+  font-family: 'Tiempos';
+  src: local('Tiempos Text'),
+       local('TiemposText-Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos';
+  src: local('Tiempos Text Italic'),
+       local('TiemposText-Italic');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- CUSTOM PROPERTIES: THE BODY'S PALETTE ---------- */
+:root {
+  /* Primary Base - Rice Paper / Warm Linen */
+  --bg-primary: #F9F6F0;
+  --bg-secondary: #F4EFE6;
+  --bg-tertiary: #EDE6D9;
+  
+  /* Text - Graphite (never pure black) */
+  --text-primary: #2A2A2A;
+  --text-secondary: #4A4540;
+  --text-muted: #6B6560;
+  
+  /* Core Accent - Vermilion Fade (oxygenated blood) */
+  --accent-warm-start: #D96C4A;
+  --accent-warm-end: #F2A68D;
+  --accent-warm-solid: #D96C4A;
+  
+  /* Cognitive Highlight - Cobalt Glass */
+  --accent-cool: #2A5C82;
+  --accent-cool-light: #3A7CA5;
+  
+  /* Neural Yellow (synaptic flash) */
+  --accent-flash: #E6A817;
+  
+  /* Functional */
+  --border-light: rgba(42, 92, 130, 0.12);
+  --shadow-soft: 0 4px 20px rgba(42, 42, 42, 0.04);
+  --shadow-card: 0 1px 3px rgba(42, 42, 42, 0.02), 0 8px 24px rgba(42, 42, 42, 0.04);
+  
+  /* Typography Scale (1.25 ratio) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.563rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-3xl: 3.052rem;
+  
+  /* Spacing */
+  --space-unit: 0.25rem;
+  --space-1: calc(var(--space-unit) * 1);
+  --space-2: calc(var(--space-unit) * 2);
+  --space-3: calc(var(--space-unit) * 3);
+  --space-4: calc(var(--space-unit) * 4);
+  --space-6: calc(var(--space-unit) * 6);
+  --space-8: calc(var(--space-unit) * 8);
+  --space-12: calc(var(--space-unit) * 12);
+  --space-16: calc(var(--space-unit) * 16);
+  
+  /* Container */
+  --container-max: 72rem;
+  --container-wide: 90rem;
+  
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-kinetic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+}
+
+/* ---------- RESET & BASE ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Tiempos', 'Georgia', 'Times New Roman', serif;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  min-height: 100vh;
+  
+  /* The "No-AI" Texture: Scanned cotton rag paper */
+  background-image: 
+    linear-gradient(
+      to bottom,
+      rgba(249, 246, 240, 0.92),
+      rgba(249, 246, 240, 0.98)
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(42, 92, 130, 0.008) 0px,
+      rgba(42, 92, 130, 0.008) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  background-blend-mode: overlay;
+  background-size: 100% 100%, 16px 16px;
+}
+
+/* ---------- TYPOGRAPHY: THE DOUBLE READ ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Mackinac', 'Mackinac-Fallback', 'Georgia', serif;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+/* The "0.025em wider" tracking on headlines */
+h1 {
+  font-size: var(--text-3xl);
+  letter-spacing: 0.025em;
+  margin-bottom: var(--space-6);
+  font-weight: 500;
+}
+
+h2 {
+  font-size: var(--text-2xl);
+  letter-spacing: 0.02em;
+  margin-bottom: var(--space-4);
+  border-left: 3px solid var(--accent-warm-solid);
+  padding-left: var(--space-4);
+}
+
+h3 {
+  font-size: var(--text-xl);
+  letter-spacing: 0.015em;
+  margin-bottom: var(--space-3);
+}
+
+/* In-text citations */
+sup {
+  font-size: var(--text-xs);
+  color: var(--accent-cool);
+  margin-left: 0.125em;
+  cursor: help;
+}
+
+sup a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-cool-light);
+}
+
+sup a:hover {
+  color: var(--accent-warm-solid);
+  border-bottom-color: var(--accent-warm-solid);
+}
+
+/* Links */
+a {
+  color: var(--accent-cool);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out-expo);
+  border-bottom: 1px solid transparent;
+}
+
+a:hover {
+  color: var(--accent-warm-solid);
+  border-bottom-color: currentColor;
+}
+
+/* ---------- LAYOUT: THE COGNITIVE LOAD MAP ---------- */
+.container {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+/* Two-column layout with sticky glossary */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-12);
+  align-items: start;
+}
+
+/* Main article column */
+.article-body {
+  max-width: 100%;
+}
+
+.article-body p {
+  margin-bottom: var(--space-4);
+  color: var(--text-secondary);
+}
+
+.article-body p:first-of-type::first-letter {
+  initial-letter: 3;
+  -webkit-initial-letter: 3;
+  margin-right: var(--space-2);
+  font-family: 'Mackinac', serif;
+  color: var(--accent-warm-solid);
+  font-weight: 500;
+}
+
+/* Sticky Glossary (The Coach's Field Reference) */
+.glossary-sidebar {
+  position: sticky;
+  top: var(--space-6);
+  background: var(--bg-secondary);
+  padding: var(--space-6) var(--space-4);
+  border-radius: 2px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-light);
+  
+  /* Subtle chromatic aberration effect on the edge */
+  border-right: 1px solid rgba(217, 108, 74, 0.15);
+  border-bottom: 1px solid rgba(42, 92, 130, 0.08);
+}
+
+.glossary-sidebar h4 {
+  font-size: var(--text-md);
+  margin-bottom: var(--space-4);
+  color: var(--accent-cool);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: var(--space-2);
+}
+
+.glossary-item {
+  margin-bottom: var(--space-4);
+}
+
+.glossary-term {
+  font-family: 'Mackinac', serif;
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.glossary-def {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ---------- THE "QUESTION & EVIDENCE" MODULE (Overlapping Cards) ---------- */
+.evidence-module {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr;
+  gap: 0;
+  margin: var(--space-12) 0;
+  position: relative;
+}
+
+.question-card {
+  background: linear-gradient(
+    135deg,
+    var(--accent-warm-start),
+    var(--accent-warm-end)
+  );
+  padding: var(--space-6) var(--space-8) var(--space-6) var(--space-6);
+  border-radius: 4px;
+  color: white;
+  z-index: 2;
+  box-shadow: var(--shadow-soft);
+}
+
+.question-card h3 {
+  color: white;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+}
+
+.question-card p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.evidence-card {
+  background: var(--bg-primary);
+  padding: var(--space-6);
+  border-radius: 4px;
+  margin-left: -2rem;
+  margin-top: 2rem;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  z-index: 1;
+  
+  /* Cobalt Glass highlight */
+  border-left: 3px solid var(--accent-cool);
+}
+
+.evidence-card .data-point {
+  font-family: 'Mackinac', serif;
+  font-size: var(--text-2xl);
+  color: var(--accent-cool);
+  line-height: 1.2;
+  margin-bottom: var(--space-2);
+}
+
+.evidence-card .data-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------- TABLES (Biomechanics Lab Style) ---------- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-8) 0;
+  font-size: var(--text-sm);
+}
+
+.data-table th {
+  font-family: 'Mackinac', serif;
+  font-weight: 500;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--accent-cool-light);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: rgba(242, 166, 141, 0.06);
+}
+
+/* ---------- MUYBRIDGE GRID (Stop-Motion Line Drawings) ---------- */
+.muybridge-container {
+  margin: var(--space-12) 0;
+  padding: var(--space-4);
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+}
+
+.muybridge-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.muybridge-caption {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+  text-align: right;
+  font-style: italic;
+}
+
+/* ---------- IMAGERY: SOFT FOCUS & CHROMATIC ABERRATION ---------- */
+.soft-focus-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  margin: var(--space-8) 0;
+}
+
+.soft-focus-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  
+  /* Soft focus simulation */
+  filter: contrast(1.02) brightness(0.98);
+  
+  /* Subtle chromatic aberration on edges (vintage lens) */
+  box-shadow: 
+    0 0 0 1px rgba(217, 108, 74, 0.08),
+    0 0 0 2px rgba(42, 92, 130, 0.04),
+    0 8px 20px rgba(42, 42, 42, 0.08);
+}
+
+.soft-focus-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 30% 40%,
+    transparent 60%,
+    rgba(249, 246, 240, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+/* ---------- THE "NO-AI" INTERACTION: ANTICIPATION HOVER ---------- */
+.article-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  margin: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-light);
+  transition: transform var(--duration-base) var(--ease-kinetic);
+  cursor: pointer;
+}
+
+.article-card .card-image {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 2px;
+  transition: transform var(--duration-base) var(--ease-out-expo);
+  filter: grayscale(0.3);
+}
+
+.article-card .card-content {
+  flex: 1;
+  transition: transform var(--duration-base) var(--ease-out-expo);
+}
+
+.article-card:hover .card-image {
+  /* Drift right (eye tracking the target) */
+  transform: translateX(8px);
+  filter: grayscale(0);
+}
+
+.article-card:hover .card-content {
+  /* Drift left (body anticipation) */
+  transform: translateX(-4px);
+}
+
+.article-card h4 {
+  margin-bottom: var(--space-1);
+  transition: color var(--duration-fast);
+}
+
+.article-card:hover h4 {
+  color: var(--accent-warm-solid);
+}
+
+/* ---------- BUTTONS & INTERACTIVE ELEMENTS ---------- */
+.button {
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  font-family: 'Mackinac', serif;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid var(--accent-cool);
+  background: transparent;
+  color: var(--accent-cool);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.button:hover {
+  background: var(--accent-cool);
+  color: white;
+  border-color: var(--accent-cool);
+  transform: scale(1.01);
+}
+
+.button-warm {
+  border-color: var(--accent-warm-solid);
+  color: var(--accent-warm-solid);
+}
+
+.button-warm:hover {
+  background: var(--accent-warm-solid);
+  border-color: var(--accent-warm-solid);
+}
+
+/* ---------- FOOTER (Research Citations) ---------- */
+.references {
+  margin-top: var(--space-16);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border-light);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.references h5 {
+  font-family: 'Mackinac', serif;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+  color: var(--text-secondary);
+}
+
+.reference-list {
+  list-style: none;
+  padding: 0;
+}
+
+.reference-list li {
+  margin-bottom: var(--space-2);
+  padding-left: var(--space-4);
+  text-indent: -1.5rem;
+}
+
+/* ---------- UTILITIES ---------- */
+.text-warm {
+  color: var(--accent-warm-solid);
+}
+
+.text-cool {
+  color: var(--accent-cool);
+}
+
+.bg-soft {
+  background: var(--bg-secondary);
+  padding: var(--space-6);
+  border-radius: 2px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  
+  .glossary-sidebar {
+    position: static;
+    margin-top: var(--space-8);
+  }
+  
+  .evidence-module {
+    grid-template-columns: 1fr;
+  }
+  
+  .evidence-card {
+    margin-left: 0;
+    margin-top: -0.5rem;
+  }
+  
+  h1 {
+    font-size: var(--text-2xl);
+  }
+}

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сенсомоторна інтеграція та антиципація — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(12px, -18px) rotate(4deg); }
+      50% { transform: translate(-8px, -28px) rotate(-3deg); }
+      75% { transform: translate(-16px, -8px) rotate(6deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-20px, 12px) rotate(-5deg); }
+      66% { transform: translate(12px, 24px) rotate(3deg); }
+    }
+    
+    @keyframes pulseSignal {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.35; }
+    }
+    
+    .ball-1 { animation: floatBall1 16s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 20s ease-in-out infinite; }
+    .pulse-signal { animation: pulseSignal 2.5s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    /* Simulation Container */
+    .simulation-container {
+      background: var(--bg-secondary);
+      padding: var(--space-6);
+      border-radius: 8px;
+      margin: var(--space-8) 0;
+      border: 1px solid var(--border-light);
+    }
+    
+    .simulation-title {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-4);
+      color: var(--accent-cool);
+    }
+    
+    .simulation-canvas {
+      width: 100%;
+      height: auto;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .simulation-controls {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .sim-button {
+      padding: var(--space-2) var(--space-4);
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      background: transparent;
+      border: 1px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all var(--duration-fast);
+    }
+    
+    .sim-button:hover {
+      background: var(--accent-cool);
+      color: white;
+    }
+    
+    .sim-slider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex: 1;
+    }
+    
+    .sim-slider label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      min-width: 100px;
+    }
+    
+    .sim-slider input {
+      flex: 1;
+      accent-color: var(--accent-warm-solid);
+    }
+    
+    .sim-readout {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      color: var(--accent-cool);
+      min-width: 60px;
+      text-align: right;
+    }
+    
+    .sim-caption {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-3);
+      text-align: center;
+      font-style: italic;
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Drawings -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Eye tracking path -->
+      <path d="M150 200 Q300 150 450 200 Q600 250 750 180 Q900 110 1050 200" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.15" stroke-dasharray="6,4"/>
+      <circle cx="150" cy="200" r="4" fill="#2A5C82" opacity="0.2"/>
+      <circle cx="450" cy="200" r="3" fill="#2A5C82" opacity="0.15"/>
+      <circle cx="750" cy="180" r="4" fill="#2A5C82" opacity="0.2"/>
+      <circle cx="1050" cy="200" r="3" fill="#2A5C82" opacity="0.15"/>
+      
+      <!-- Anticipation arc -->
+      <path d="M100 600 Q250 520 400 580" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.12" stroke-dasharray="8,5"/>
+      <polygon points="400,580 392,575 394,585" fill="#D96C4A" opacity="0.12"/>
+      
+      <!-- Tennis ball -->
+      <g class="ball-1">
+        <circle cx="200" cy="300" r="30" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.45"/>
+        <path d="M185 287 Q198 293 215 287" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.35"/>
+        <path d="M183 310 Q198 304 217 310" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.35"/>
+      </g>
+      
+      <!-- Basketball -->
+      <g class="ball-2">
+        <circle cx="950" cy="400" r="38" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.4"/>
+        <path d="M926 382 Q950 394 974 382" fill="none" stroke="#D96C4A" stroke-width="1" opacity="0.35"/>
+        <line x1="950" y1="362" x2="950" y2="438" stroke="#D96C4A" stroke-width="0.8" opacity="0.3"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-1" style="animation-delay: 2s;">
+        <circle cx="500" cy="650" r="35" fill="none" stroke="#2A5C82" stroke-width="1.2" opacity="0.3"/>
+        <polygon points="500,628 508,634 508,646 500,652 492,646 492,634" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.2"/>
+      </g>
+      
+      <!-- Signal waves (sensorimotor) -->
+      <path d="M50 450 Q80 430 100 450 Q120 470 140 450 Q160 430 180 450" fill="none" stroke="#E6A817" stroke-width="1" opacity="0.12" class="pulse-signal"/>
+      <path d="M50 470 Q80 450 100 470 Q120 490 140 470 Q160 450 180 470" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.08" class="pulse-signal" style="animation-delay: 0.5s;"/>
+      
+      <!-- Neuron sparkles -->
+      <circle cx="350" cy="120" r="2.5" fill="#E6A817" opacity="0.18" class="pulse-signal"/>
+      <circle cx="800" cy="550" r="2" fill="#D96C4A" opacity="0.15" class="pulse-signal" style="animation-delay: 1s;"/>
+      
+      <!-- Rotating ring (vestibular) -->
+      <g class="spin-slow" transform="translate(650, 250)">
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.12"/>
+        <ellipse cx="0" cy="0" rx="18" ry="10" fill="none" stroke="#2A5C82" stroke-width="0.6" opacity="0.08" transform="rotate(60)"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="stress.html" class="nav-button nav-button-outline">
+        ← Стрес і контроль
+      </a>
+      <div class="nav-buttons">
+        <a href="psychology.html" class="nav-button">
+          Психологія тренера →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Розділ 4</div>
+      <h1>Сенсомоторна інтеграція, зорово-рухова координація та антиципація</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <p>У видах спорту з відкритим і динамічним середовищем, де хронометраж, виділений на реакцію, обчислюється мілісекундами, визначальним фактором змагального успіху є не стільки максимальна швидкість м'язового скорочення, скільки здатність кори головного мозку до точної антиципації — завчасного передбачення вектору розвитку подій до моменту їх фактичного настання. Процеси антиципації функціонують на базі високошвидкісної сенсомоторної інтеграції та безперервного візуального сканування кінематичних властивостей рухомого об'єкта або тіла суперника.</p>
+          
+          <p>Елітні спортсмени відзначаються наявністю витончених коркових механізмів моторного резонансу, що надають їм здатність підсвідомо зчитувати складну кінематику тіла опонента ще на підготовчих фазах виконання руху. Матеріали нейрофізіологічних досліджень свідчать, що в момент візуального спостереження за діями суперника у відповідних моторних зонах мозку експертів фіксується вибіркове підвищення амплітуди моторних викликаних потенціалів. Це фізіологічне явище доводить, що висококваліфікований спортсмен не обмежується пасивним візуальним спостереженням: його нервова система миттєво запускає внутрішню симуляцію побаченого руху у власній моторній корі, що уможливлює точний математичний прогноз кінцевого результату моторного акту (наприклад, розрахунок точки падіння м'яча при тенісній подачі) задовго до фактичного контакту ракетки з м'ячем.</p>
+          
+          <p>Важливим компонентом оптимізації когнітивно-рухового контролю є здатність центральної нервової системи стабілізувати фокус візуальної уваги на ключових просторових елементах середовища. Механізми зорово-рухової синхронізації забезпечують жорстку фіксацію погляду на обраній мішені протягом критично важливого проміжку часу, який безпосередньо передує початку фінальної фази дії. Стабільна та неперервна фіксація макули сітківки створює умови, за яких зорова система встигає акумулювати максимально репрезентативний обсяг екстероцептивних даних для здійснення точного розрахунку метричних параметрів рухового акту на рівні просторового поля за Бернштейном.</p>
+          
+          <p>Систематична стимуляція префронтальної кори та структур гіпокампу через використання спеціалізованих програм візуально-моторного навчання суттєво прискорює темпи формування стійких синаптичних зв'язків. Застосування тренувальних вправ на баланс із паралельним впровадженням інтелектуальних завдань, а також використання технологій віртуальної реальності для симуляції бойових ситуацій, потужно зміцнюють нейронні комунікації між правою та лівою півкулями головного мозку. Сучасні технології біологічного зворотного зв'язку дозволяють фахівцям здійснювати неперервний об'єктивний моніторинг нейродинамічних показників у режимі реального часу, допомагаючи спортсмену формувати механізми усвідомленого та ефективного регулювання власного просторового положення.</p>
+          
+          <!-- Interactive Simulation: Anticipation Timing -->
+          <div class="simulation-container">
+            <div class="simulation-title">Інтерактивна симуляція: Тренування антиципації</div>
+            
+            <canvas id="sim-canvas" class="simulation-canvas" width="700" height="250"></canvas>
+            
+            <div class="simulation-controls">
+              <button class="sim-button" id="sim-start">▶ Старт</button>
+              <button class="sim-button" id="sim-reset">↻ Скинути</button>
+              
+              <div class="sim-slider">
+                <label>Швидкість об'єкта</label>
+                <input type="range" id="sim-speed" min="2" max="12" value="6" step="0.5">
+                <span class="sim-readout" id="speed-value">6.0</span>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: var(--space-3);">
+              <span style="font-size: var(--text-xs); color: var(--text-muted);">
+                🎯 Натисніть на полотно, коли м'яч досягне цілі (жовта зона)
+              </span>
+              <span style="font-size: var(--text-xs); color: var(--accent-cool);">
+                Спроби: <span id="attempt-counter">0</span> | 
+                Влучання: <span id="hit-counter">0</span> | 
+                Точність: <span id="accuracy-display">—</span>
+              </span>
+            </div>
+            
+            <div class="sim-caption">
+              Ця симуляція демонструє принцип антиципації: ваш мозок має передбачити момент досягнення цілі, враховуючи швидкість руху.
+            </div>
+          </div>
+          
+          <!-- Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Наскільки раніше експерт передбачає рух?</h3>
+              <p>Моторний резонанс дозволяє «читати» кінематику суперника до завершення руху.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">~120-180 мс</div>
+              <div class="data-label">випередження реакції у елітних гравців порівняно з новачками</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Достатньо, щоб компенсувати біомеханічну затримку проведення імпульсу.
+              </p>
+            </div>
+          </div>
+          
+        </article>
+        
+        <!-- Sticky Glossary -->
+        <aside class="glossary-sidebar">
+          <h4>Сенсомоторний глосарій</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Антиципація</div>
+            <div class="glossary-def">Передбачення майбутніх подій на основі поточної сенсорної інформації. Ключовий механізм у спорті.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Моторний резонанс</div>
+            <div class="glossary-def">Активація моторної кори при спостереженні за рухом. Дозволяє «внутрішньо симулювати» дії іншого.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Quiet Eye</div>
+            <div class="glossary-def">Стабільна фінальна фіксація погляду перед виконанням руху. Маркер експертності.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Сенсомоторна інтеграція</div>
+            <div class="glossary-def">Процес об'єднання сенсорної інформації з моторними командами для точного руху.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term">Зорово-рухова координація</div>
+            <div class="glossary-def">Узгодження візуального сприйняття з руховими діями. Тренується через вправи на баланс.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+<!-- Article Cards Navigation -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Продовжити читання</h3>
+  
+  <!-- Card 1: Psychology -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='psychology.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="40" cy="30" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="60" cy="40" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <line x1="48" y1="30" x2="52" y2="40" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Психологія тренерської роботи →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Трансфер знань, емоційне вигоряння та спільні ментальні моделі</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Conclusions -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='conclusions.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="50" cy="35" r="20" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="50" cy="35" r="12" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="50" cy="35" r="4" fill="#E6A817" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Висновки →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Узагальнення та підсумки: інтегративна модель спортивної майстерності</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 4 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Ключові джерела</h5>
+      <ul class="reference-list">
+        <li>[1] Aglioti, S.M., et al. (2008). Action anticipation and motor resonance in elite basketball players. <em>Nature Neuroscience</em>.</li>
+        <li>[2] Vickers, J.N. (2007). <em>Perception, Cognition, and Decision Training</em>. Human Kinetics.</li>
+        <li>[3] Wolpert, D.M., & Flanagan, J.R. (2001). Motor prediction. <em>Current Biology</em>.</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5;">
+        © Психологія руху — Organic Precision Design System
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ антиципація • моторний резонанс • Quiet Eye
+  </div>
+  
+  <!-- Interactive Simulation Script -->
+  <script>
+    (function() {
+      const canvas = document.getElementById('sim-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Simulation state
+      let animationId = null;
+      let ballX = 50;
+      const ballY = 120;
+      const ballRadius = 12;
+      const targetX = 550;
+      const targetWidth = 40;
+      const targetY = 100;
+      const targetHeight = 40;
+      
+      let speed = 6;
+      let isRunning = false;
+      let attempts = 0;
+      let hits = 0;
+      
+      // UI elements
+      const startBtn = document.getElementById('sim-start');
+      const resetBtn = document.getElementById('sim-reset');
+      const speedSlider = document.getElementById('sim-speed');
+      const speedValue = document.getElementById('speed-value');
+      const attemptSpan = document.getElementById('attempt-counter');
+      const hitSpan = document.getElementById('hit-counter');
+      const accuracySpan = document.getElementById('accuracy-display');
+      
+      function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Background grid
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.08)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < canvas.width; i += 50) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i, canvas.height);
+          ctx.stroke();
+        }
+        
+        // Trajectory line
+        ctx.beginPath();
+        ctx.moveTo(50, ballY);
+        ctx.lineTo(targetX, ballY);
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([8, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Target zone
+        ctx.fillStyle = 'rgba(230, 168, 23, 0.15)';
+        ctx.strokeStyle = '#E6A817';
+        ctx.lineWidth = 2;
+        ctx.fillRect(targetX - targetWidth/2, targetY - targetHeight/2, targetWidth, targetHeight);
+        ctx.strokeRect(targetX - targetWidth/2, targetY - targetHeight/2, targetWidth, targetHeight);
+        
+        ctx.fillStyle = '#E6A817';
+        ctx.font = '10px "Mackinac", serif';
+        ctx.fillText('ЦІЛЬ', targetX - 20, targetY - 20);
+        
+        // Start marker
+        ctx.fillStyle = 'rgba(42, 92, 130, 0.3)';
+        ctx.beginPath();
+        ctx.arc(50, ballY, 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Ball
+        const gradient = ctx.createRadialGradient(ballX-4, ballY-4, 2, ballX, ballY, ballRadius);
+        gradient.addColorStop(0, '#D96C4A');
+        gradient.addColorStop(1, '#A04A35');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#8B3A28';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        
+        // Ball spin lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(ballX-4, ballY-4, 4, 0, Math.PI * 1.5);
+        ctx.stroke();
+        
+        // Speed indicator
+        ctx.fillStyle = '#6B6560';
+        ctx.font = '11px "Tiempos", serif';
+        ctx.fillText(`Швидкість: ${speed.toFixed(1)}`, 20, 30);
+        
+        // Instruction if not running
+        if (!isRunning && ballX === 50) {
+          ctx.fillStyle = '#4A4540';
+          ctx.font = '12px "Tiempos", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Натисніть «Старт» для запуску симуляції', canvas.width/2, 200);
+          ctx.textAlign = 'left';
+        }
+      }
+      
+      function animate() {
+        if (!isRunning) return;
+        
+        ballX += speed;
+        
+        // Check if reached target area
+        if (ballX >= targetX - targetWidth/2 - ballRadius) {
+          isRunning = false;
+          startBtn.textContent = '▶ Старт';
+          
+          // Check if in target zone
+          const inTarget = ballX >= targetX - targetWidth/2 && ballX <= targetX + targetWidth/2;
+          
+          if (inTarget) {
+            // Visual feedback - success
+            ctx.fillStyle = 'rgba(42, 92, 130, 0.2)';
+            ctx.fillRect(targetX - targetWidth/2, targetY - targetHeight/2, targetWidth, targetHeight);
+          }
+        }
+        
+        // Stop at right edge
+        if (ballX > canvas.width - ballRadius) {
+          ballX = canvas.width - ballRadius;
+          isRunning = false;
+          startBtn.textContent = '▶ Старт';
+        }
+        
+        drawScene();
+        
+        if (isRunning) {
+          animationId = requestAnimationFrame(animate);
+        }
+      }
+      
+      function handleCanvasClick(e) {
+        if (!isRunning) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const clickX = (e.clientX - rect.left) * scaleX;
+        
+        // Check if click is on target and ball is in target zone
+        const ballInTarget = ballX >= targetX - targetWidth/2 - ballRadius && 
+                            ballX <= targetX + targetWidth/2 + ballRadius;
+        
+        attempts++;
+        
+        if (ballInTarget) {
+          hits++;
+          // Flash success
+          ctx.fillStyle = 'rgba(42, 92, 130, 0.3)';
+          ctx.fillRect(targetX - targetWidth/2, targetY - targetHeight/2, targetWidth, targetHeight);
+          setTimeout(() => drawScene(), 100);
+        } else {
+          // Flash miss
+          ctx.fillStyle = 'rgba(217, 108, 74, 0.2)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          setTimeout(() => drawScene(), 100);
+        }
+        
+        updateStats();
+      }
+      
+      function updateStats() {
+        attemptSpan.textContent = attempts;
+        hitSpan.textContent = hits;
+        const accuracy = attempts > 0 ? ((hits / attempts) * 100).toFixed(1) : '—';
+        accuracySpan.textContent = attempts > 0 ? accuracy + '%' : '—';
+      }
+      
+      function resetSimulation() {
+        isRunning = false;
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+          animationId = null;
+        }
+        ballX = 50;
+        attempts = 0;
+        hits = 0;
+        startBtn.textContent = '▶ Старт';
+        drawScene();
+        updateStats();
+      }
+      
+      // Event listeners
+      startBtn.addEventListener('click', () => {
+        if (isRunning) {
+          isRunning = false;
+          startBtn.textContent = '▶ Старт';
+          if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+          }
+        } else {
+          if (ballX >= canvas.width - ballRadius || 
+              (ballX >= targetX - targetWidth/2 - ballRadius && ballX <= targetX + targetWidth/2 + ballRadius)) {
+            ballX = 50;
+          }
+          isRunning = true;
+          startBtn.textContent = '⏸ Пауза';
+          animate();
+        }
+      });
+      
+      resetBtn.addEventListener('click', resetSimulation);
+      
+      speedSlider.addEventListener('input', (e) => {
+        speed = parseFloat(e.target.value);
+        speedValue.textContent = speed.toFixed(1);
+      });
+      
+      canvas.addEventListener('click', handleCanvasClick);
+      
+      // Initialize
+      drawScene();
+      updateStats();
+    })();
+  </script>
+  
+  <script src="main.js"></script>
+   <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>

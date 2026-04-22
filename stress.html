@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вплив стресу на когнітивний контроль — Психологія руху</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* Background drawings (shared) */
+    .bg-drawing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+    }
+    
+    .bg-drawing svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes floatBall1 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(15px, -20px) rotate(5deg); }
+      50% { transform: translate(-10px, -35px) rotate(-3deg); }
+      75% { transform: translate(-20px, -10px) rotate(8deg); }
+    }
+    
+    @keyframes floatBall2 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-25px, 15px) rotate(-7deg); }
+      66% { transform: translate(15px, 30px) rotate(4deg); }
+    }
+    
+    @keyframes floatBall3 {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(30px, -10px) rotate(6deg); }
+      40% { transform: translate(-15px, 25px) rotate(-4deg); }
+      60% { transform: translate(10px, -30px) rotate(3deg); }
+      80% { transform: translate(-30px, -5px) rotate(-6deg); }
+    }
+    
+    @keyframes spinBall {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulseAlert {
+      0%, 100% { opacity: 0.12; }
+      50% { opacity: 0.35; }
+    }
+    
+    @keyframes stressPulse {
+      0%, 100% { border-color: rgba(230, 168, 23, 0.2); }
+      50% { border-color: rgba(230, 168, 23, 0.6); }
+    }
+    
+    .ball-1 { animation: floatBall1 18s ease-in-out infinite; }
+    .ball-2 { animation: floatBall2 22s ease-in-out infinite; }
+    .ball-3 { animation: floatBall3 25s ease-in-out infinite; }
+    .ball-4 { animation: floatBall1 20s ease-in-out infinite reverse; }
+    .ball-5 { animation: floatBall2 28s ease-in-out infinite; }
+    
+    .spin-slow { animation: spinBall 40s linear infinite; }
+    .spin-reverse { animation: spinBall 35s linear infinite reverse; }
+    .pulse-alert { animation: pulseAlert 3s ease-in-out infinite; }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+    
+    /* Navigation */
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: var(--space-8);
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .nav-button {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-5);
+      background: transparent;
+      border: 1.5px solid var(--accent-cool);
+      color: var(--accent-cool);
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all var(--duration-base) var(--ease-out-expo);
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+    
+    .nav-button:hover {
+      background: var(--accent-cool);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 130, 0.15);
+    }
+    
+    .nav-button-outline {
+      border-color: var(--accent-warm-solid);
+      color: var(--accent-warm-solid);
+    }
+    
+    .nav-button-outline:hover {
+      background: var(--accent-warm-solid);
+      color: white;
+    }
+    
+    .chapter-badge {
+      display: inline-block;
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-warm-solid);
+      border-bottom: 2px solid var(--accent-warm-solid);
+      padding-bottom: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+    
+    /* Graph and Scheme Containers */
+    .graph-container {
+      background: var(--bg-secondary);
+      padding: var(--space-6);
+      border-radius: 4px;
+      margin: var(--space-8) 0;
+      border: 1px solid var(--border-light);
+    }
+    
+    .graph-title {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-4);
+      color: var(--accent-cool);
+    }
+    
+    .graph-canvas {
+      width: 100%;
+      height: auto;
+      background: var(--bg-primary);
+      border-radius: 2px;
+    }
+    
+    .graph-caption {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-3);
+      text-align: center;
+    }
+    
+    /* Reason Chain Scheme */
+    .reason-chain {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin: var(--space-6) 0;
+    }
+    
+    .chain-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    
+    .chain-node {
+      background: var(--bg-secondary);
+      padding: var(--space-3) var(--space-5);
+      border-radius: 30px;
+      border: 1.5px solid var(--border-light);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      font-family: 'Mackinac', serif;
+      min-width: 140px;
+      text-align: center;
+      transition: all var(--duration-base);
+    }
+    
+    .chain-node.stressor {
+      border-color: var(--accent-flash);
+      background: rgba(230, 168, 23, 0.06);
+      animation: stressPulse 3s ease-in-out infinite;
+    }
+    
+    .chain-node.amygdala {
+      border-color: #D96C4A;
+      background: rgba(217, 108, 74, 0.06);
+    }
+    
+    .chain-node.pfc {
+      border-color: #2A5C82;
+      background: rgba(42, 92, 130, 0.06);
+    }
+    
+    .chain-node.outcome {
+      border-color: #4A4540;
+      background: var(--bg-tertiary);
+    }
+    
+    .chain-arrow {
+      font-size: 20px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+    
+    .chain-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: var(--space-1);
+      font-style: italic;
+    }
+    
+    /* Branching Scheme */
+    .branch-scheme {
+      display: flex;
+      justify-content: space-around;
+      margin: var(--space-8) 0;
+      padding: var(--space-4);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+    
+    .branch {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .branch-header {
+      font-family: 'Mackinac', serif;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid;
+    }
+    
+    .branch.optimal .branch-header {
+      color: var(--accent-cool);
+      border-bottom-color: var(--accent-cool);
+    }
+    
+    .branch.suboptimal .branch-header {
+      color: var(--accent-warm-solid);
+      border-bottom-color: var(--accent-warm-solid);
+    }
+    
+    .branch ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+    
+    .branch li {
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      border-bottom: 1px dashed var(--border-light);
+    }
+    
+    .branch li:last-child {
+      border-bottom: none;
+    }
+    
+    .drawing-note {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.4;
+      z-index: 10;
+      font-style: italic;
+    }
+    
+    /* Stress level gauge */
+    .stress-gauge {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin: var(--space-6) 0;
+      padding: var(--space-4);
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+    
+    .gauge-bar {
+      flex: 1;
+      height: 12px;
+      background: linear-gradient(to right, #2A5C82, #E6A817, #D96C4A);
+      border-radius: 6px;
+      position: relative;
+    }
+    
+    .gauge-marker {
+      position: absolute;
+      width: 4px;
+      height: 20px;
+      background: var(--text-primary);
+      top: -4px;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+    
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Drawings with Stress Theme -->
+  <div class="bg-drawing">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Pulsing alert circles (stress indicators) -->
+      <circle cx="200" cy="150" r="30" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.3" class="pulse-alert"/>
+      <circle cx="200" cy="150" r="45" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.15" class="pulse-alert" style="animation-delay: 0.5s;"/>
+      <circle cx="900" cy="500" r="25" fill="none" stroke="#D96C4A" stroke-width="1.5" opacity="0.25" class="pulse-alert" style="animation-delay: 1s;"/>
+      <circle cx="900" cy="500" r="38" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.12" class="pulse-alert" style="animation-delay: 1.5s;"/>
+      
+      <!-- Amygdala shape (stylized) -->
+      <g opacity="0.1" transform="translate(350, 120) scale(0.7)">
+        <ellipse cx="0" cy="0" rx="25" ry="18" fill="none" stroke="#D96C4A" stroke-width="2"/>
+        <ellipse cx="0" cy="0" rx="15" ry="10" fill="none" stroke="#D96C4A" stroke-width="1.5"/>
+      </g>
+      
+      <!-- Prefrontal cortex shape (stylized) -->
+      <g opacity="0.08" transform="translate(800, 150) scale(0.8)">
+        <path d="M-40,10 Q-30,-20 0,-25 Q30,-20 40,10 Q30,30 0,25 Q-30,30 -40,10 Z" fill="none" stroke="#2A5C82" stroke-width="2"/>
+        <line x1="-20" y1="-10" x2="20" y2="-10" stroke="#2A5C82" stroke-width="1.5"/>
+        <line x1="-15" y1="5" x2="15" y2="5" stroke="#2A5C82" stroke-width="1.5"/>
+      </g>
+      
+      <!-- Basketball -->
+      <g class="ball-1">
+        <circle cx="100" cy="250" r="38" fill="none" stroke="#D96C4A" stroke-width="1.8" opacity="0.5"/>
+        <path d="M76 230 Q100 242 124 230" fill="none" stroke="#D96C4A" stroke-width="1.2" opacity="0.45"/>
+      </g>
+      
+      <!-- Tennis ball -->
+      <g class="ball-2">
+        <circle cx="1050" cy="300" r="28" fill="none" stroke="#E6A817" stroke-width="1.5" opacity="0.45"/>
+        <path d="M1036 287 Q1048 293 1064 287" fill="none" stroke="#E6A817" stroke-width="0.8" opacity="0.35"/>
+      </g>
+      
+      <!-- Soccer ball -->
+      <g class="ball-3">
+        <circle cx="400" cy="650" r="42" fill="none" stroke="#2A5C82" stroke-width="1.5" opacity="0.35"/>
+        <polygon points="400,622 410,630 410,644 400,652 390,644 390,630" fill="none" stroke="#2A5C82" stroke-width="1" opacity="0.25"/>
+      </g>
+      
+      <!-- Baseball -->
+      <g class="ball-5">
+        <circle cx="850" cy="700" r="32" fill="none" stroke="#4A4540" stroke-width="1.5" opacity="0.3"/>
+        <path d="M828 687 Q835 700 828 713" fill="none" stroke="#E6A817" stroke-width="1" opacity="0.35" stroke-dasharray="3,3"/>
+      </g>
+      
+      <!-- Cortisol molecules (stylized hexagons) -->
+      <g opacity="0.1">
+        <polygon points="500,400 515,408 515,424 500,432 485,424 485,408" fill="none" stroke="#E6A817" stroke-width="1.5"/>
+        <polygon points="515,408 530,416 530,432 515,440 500,432 500,416" fill="none" stroke="#E6A817" stroke-width="1"/>
+      </g>
+      
+      <!-- Trajectory arcs -->
+      <path d="M80 180 Q250 100 450 220" fill="none" stroke="#D96C4A" stroke-width="0.8" opacity="0.15" stroke-dasharray="8,6"/>
+      
+      <!-- Neuron sparkles -->
+      <circle cx="550" cy="200" r="2.5" fill="#E6A817" opacity="0.2" class="pulse-alert"/>
+      <circle cx="300" cy="480" r="2" fill="#D96C4A" opacity="0.18" class="pulse-alert" style="animation-delay: 0.8s;"/>
+      
+      <!-- Rotating ring -->
+      <g class="spin-slow" transform="translate(700, 600)">
+        <ellipse cx="0" cy="0" rx="20" ry="12" fill="none" stroke="#2A5C82" stroke-width="0.8" opacity="0.15"/>
+      </g>
+    </svg>
+  </div>
+  
+  <div class="content-wrapper">
+    
+    <!-- Navigation -->
+    <nav class="site-nav">
+      <a href="conceptualisation.html" class="nav-button nav-button-outline">
+        ← Рівні управління
+      </a>
+      <div class="nav-buttons">
+        <a href="integration.html" class="nav-button">
+          Сенсомоторна інтеграція →
+        </a>
+      </div>
+    </nav>
+    
+    <main class="container">
+      
+      <div class="chapter-badge">Розділ 3</div>
+      <h1>Вплив екстремального стресу на механізми когнітивного контролю та прийняття рішень</h1>
+      
+      <div class="content-grid">
+        
+        <article class="article-body">
+          
+          <p>Об'єктивна результативність індивіда в умовах реальної спортивної боротьби детермінується не лише якістю та ступенем автоматизації сформованих моторних енграм, а й безпосередньою здатністю нервової системи генерувати адекватні регуляторні відповіді в умовах інтенсивного психологічного тиску. Змагальний стрес ініціює системну, еволюційно закріплену фізіологічну реакцію, відому в біології як реакція боротьби або втечі. Раптова активація симпатичного відділу вегетативної нервової системи неминуче супроводжується масованим викидом катехоламінів, зокрема адреналіну та кортизолу, у кровоносне русло. На базовому фізіологічному рівні це призводить до прискорення сенсорних реакцій, підвищення м'язового тонусу та мобілізації енергетичних ресурсів. Проте на рівні вищої нервової діяльності вплив гострого стресу є глибоко амбівалентним і критично залежить від особливостей взаємодії різних мозкових структур.</p>
+          
+          <!-- Stress Gauge Visualization -->
+          <div class="stress-gauge">
+            <span style="font-size: var(--text-sm); color: var(--text-muted); min-width: 80px;">Рівень стресу:</span>
+            <div style="flex: 1;">
+              <div class="gauge-bar">
+                <div class="gauge-marker" style="left: 65%;"></div>
+              </div>
+              <div class="gauge-labels">
+                <span>Оптимальний</span>
+                <span>Пік продуктивності</span>
+                <span>Дистрес</span>
+              </div>
+            </div>
+          </div>
+          
+          <h2 id="amygdala-pfc">Нейродинаміка мигдалеподібного тіла та префронтальної кори</h2>
+          
+          <p>Центральним вузлом у системі емоційної реактивності є мигдалеподібне тіло, яке виконує функцію первинного детектора біологічних загроз. У ситуаціях високого психологічного тиску, коли ціна помилки є максимальною, гіперактивація мигдалеподібного тіла здатна спровокувати повну дезінтеграцію автоматизованих рухових навичок. Фізіологічно цей стан проявляється у вигляді феномену тунельного зору, надмірного неконтрольованого м'язового напруження, уповільнення обробки релевантної візуальної інформації та катастрофічного порушення процесів раціонального прийняття рішень. Надмірно сильне збудження мигдалеподібного тіла має здатність нейрофізіологічно пригнічувати вищі коркові процеси, що повністю пояснює поширений феномен раптової втрати координації (заціпеніння) або схильність до прийняття імпульсивних, тактично невиправданих рішень під час критичних епізодів змагань.</p>
+          
+          <p>Головною противагою цій емоційній домінанті виступає префронтальна кора головного мозку, яка є фізіологічним субстратом функцій вищого виконавчого контролю, довгострокового стратегічного планування та свідомого гальмування імпульсивних поведінкових реакцій. Висока та стабільна результативність в умовах екстремального стресу досягається виключно завдяки здатності індивіда підтримувати домінантну активність префронтальної кори. В оптимізованому стані префронтальна кора діє як жорсткий когнітивний фільтр, що інгібує нерелевантну інформацію з навколишнього середовища (наприклад, візуальний або шумовий тиск з боку трибун, агресивні провокації суперника), дозволяючи спортсмену утримувати всю повноту концентрації виключно на актуальному руховому завданні.</p>
+          
+          <p>Видатні спортсмени завдяки систематичній експозиції до стресових умов протягом багаторічного тренувального процесу здатні структурно та функціонально реконструювати нейронні контури цієї кортико-лімбічної осі. Вони формують фізіологічну здатність до швидкого інгібування неконтрольованої реактивності мигдалеподібного тіла паралельно з оптимізацією роботи виконавчих ланцюгів префронтальної кори, що дозволяє їм зберігати емоційний гомеостаз та ясність тактичного мислення в будь-якій ситуації.</p>
+          
+          <!-- Graph 1: Amygdala vs PFC Activity Under Stress -->
+          <div class="graph-container">
+            <div class="graph-title">Рис. 1. Баланс активності мигдалеподібного тіла та префронтальної кори при стресі</div>
+            <canvas id="graph-amygdala-pfc" class="graph-canvas" width="700" height="300"></canvas>
+            <div class="graph-caption">У новачків стрес викликає гіперактивацію мигдалеподібного тіла з пригніченням ПФК. Експерти зберігають домінування префронтального контролю.</div>
+          </div>
+          
+          <!-- Reason Chain Scheme 1: Stress → Performance -->
+          <div class="graph-container">
+            <div class="graph-title">Схема 1. Причинно-наслідковий ланцюг: стрес → дезінтеграція навички</div>
+            <div class="reason-chain">
+              <div class="chain-row">
+                <div class="chain-node stressor">Змагальний стресор</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node amygdala">Гіперактивація Amygdala</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node">Викид кортизолу</div>
+              </div>
+              <div class="chain-label">Активація HPA-осі (гіпоталамус-гіпофіз-наднирники)</div>
+              
+              <div class="chain-row" style="margin-top: var(--space-4);">
+                <div class="chain-node">Пригнічення ПФК</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node">Втрата виконавчого контролю</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node outcome">Дезінтеграція навички</div>
+              </div>
+              <div class="chain-label">Феномен «choking under pressure» — заціпеніння у відповідальний момент</div>
+            </div>
+          </div>
+          
+          <!-- Reason Chain Scheme 2: Resilience Pathway -->
+          <div class="graph-container">
+            <div class="graph-title">Схема 2. Шлях стресостійкості: тренована кортико-лімбічна регуляція</div>
+            <div class="reason-chain">
+              <div class="chain-row">
+                <div class="chain-node stressor">Змагальний стресор</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node pfc">Активний контроль ПФК</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node">Інгібування Amygdala</div>
+              </div>
+              <div class="chain-label">Низхідний кортикальний контроль над лімбічною системою</div>
+              
+              <div class="chain-row" style="margin-top: var(--space-4);">
+                <div class="chain-node">Селективна увага</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node">Оптимальне збудження</div>
+                <span class="chain-arrow">→</span>
+                <div class="chain-node outcome">Стабільне виконання</div>
+              </div>
+              <div class="chain-label">Збереження «тихого ока» (Quiet Eye) та точності рухів</div>
+            </div>
+          </div>
+          
+          <h2 id="resource-redistribution">Перерозподіл нейронних ресурсів при прийнятті рішень під тиском</h2>
+          
+          <p>Сучасні емпіричні дослідження у галузі когнітивної нейронауки із залученням інструментарію електроенцефалографії та функціональної магнітно-резонансної томографії переконливо демонструють, що механізми прийняття рішень в умовах дефіциту часу жорстко корелюють із функціональною інтеграцією між префронтальною корою та скронево-тім'яним вузлом. Експериментально встановлено, що під дією гострого стресового фактора спортсмени вимушено адаптують свої поведінкові стратегії. Це супроводжується фіксованим зниженням активації у надкрайовій звивині, яка бере участь у складних просторових розрахунках, а також у фронтальних окорухових полях та соматосенсорній асоціативній корі. Натомість спостерігається виражене компенсаторне підвищення локальної активності у первинній моторній корі.</p>
+          
+          <p>Така специфічна нейродинамічна картина є об'єктивним свідченням того, що стрес змушує центральну нервову систему екстрено перерозподіляти метаболічні ресурси. Мозок відключає енергоємні зони, відповідальні за складний аналіз та оцінку ймовірностей, і переспрямовує енергію до зон, що безпосередньо ініціюють та забезпечують механічне виконання вже знайомої рухової дії. Оптимізація цього стресового перерозподілу через цілеспрямоване когнітивно-моторне тренування підвищує загальний рівень когнітивного контролю, дозволяючи індивіду здійснювати безпомилковий вибір найбільш релевантної моторної програми з доступного пулу.</p>
+          
+          <p>Крім того, якість процесів прийняття рішень має тісний зв'язок з динамікою коркових осциляцій. Спектральний аналіз ритмів головного мозку виявляє, що стан оптимальної готовності безпосередньо перед початком дії супроводжується специфічною синхронізацією активності нейронних ансамблів у діапазоні гамма- та альфа-ритмів. Підвищення загальної ефективності інформаційного обміну між різними структурами мозку, яке цілеспрямовано стимулюється шляхом виконання тренувальних вправ зі штучно створеним подвійним когнітивним навантаженням (наприклад, одночасна асиметрична маніпуляція об'єктами з паралельним вирішенням арифметичних завдань), значно посилює розвиток сенсомоторної інтеграції та формує потужний буфер стійкості проти руйнівних стресових факторів.</p>
+          
+          <!-- Graph 2: Neural Resource Redistribution -->
+          <div class="graph-container">
+            <div class="graph-title">Рис. 2. Перерозподіл нейронної активності під впливом гострого стресу</div>
+            <canvas id="graph-resource-shift" class="graph-canvas" width="700" height="320"></canvas>
+            <div class="graph-caption">Стрес викликає зниження активності в асоціативних зонах (просторовий аналіз) та компенсаторне підвищення в моторній корі.</div>
+          </div>
+          
+          <!-- Branching Scheme: Decision Pathways Under Stress -->
+          <div class="graph-container">
+            <div class="graph-title">Схема 3. Розгалуження стратегій прийняття рішень в умовах дефіциту часу</div>
+            <div class="branch-scheme">
+              <div class="branch optimal">
+                <div class="branch-header">Оптимальний шлях (експерт)</div>
+                <ul>
+                  <li>✓ Збереження активності ПФК</li>
+                  <li>✓ Селективне гальмування Amygdala</li>
+                  <li>✓ Точний вибір моторної програми</li>
+                  <li>✓ Стабільна просторова точність</li>
+                  <li>✓ Збереження «Quiet Eye»</li>
+                </ul>
+                <div style="margin-top: var(--space-3); padding: var(--space-2); background: rgba(42,92,130,0.06); border-radius: 4px; font-size: var(--text-xs);">
+                  Результат: Пік продуктивності
+                </div>
+              </div>
+              <div class="branch suboptimal">
+                <div class="branch-header">Субоптимальний шлях (новачок)</div>
+                <ul>
+                  <li>✗ Пригнічення ПФК</li>
+                  <li>✗ Гіперактивація Amygdala</li>
+                  <li>✗ Хаотичний вибір програми</li>
+                  <li>✗ Втрата просторової точності</li>
+                  <li>✗ Тунельний зір</li>
+                </ul>
+                <div style="margin-top: var(--space-3); padding: var(--space-2); background: rgba(217,108,74,0.06); border-radius: 4px; font-size: var(--text-xs);">
+                  Результат: «Choking» / заціпеніння
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Evidence Module -->
+          <div class="evidence-module">
+            <div class="question-card">
+              <h3>Чому досвідчені спортсмени «не ламаються» під тиском?</h3>
+              <p>Багаторічне тренування в умовах стресу реконструює кортико-лімбічну вісь.</p>
+            </div>
+            <div class="evidence-card">
+              <div class="data-point">↓ 30-40%</div>
+              <div class="data-label">зниження реактивності мигдалеподібного тіла у елітних спортсменів при пред'явленні стресових стимулів</div>
+              <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--text-muted);">
+                Дані фМРТ-досліджень: експерти демонструють швидше відновлення гомеостазу після стресового впливу.
+              </p>
+            </div>
+          </div>
+          
+        </article>
+        
+        <!-- Sticky Glossary Sidebar -->
+        <aside class="glossary-sidebar">
+          <h4>Глосарій стресу та контролю</h4>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="amygdala">Amygdala (Мигдалеподібне тіло)</div>
+            <div class="glossary-def">Підкіркова структура лімбічної системи, детектор загроз. Гіперактивація призводить до дезінтеграції навичок.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="pfc">Префронтальна кора (ПФК)</div>
+            <div class="glossary-def">Вищий центр виконавчого контролю, планування та гальмування імпульсів. Головна «противага» мигдалеподібному тілу.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="hpa">HPA-вісь</div>
+            <div class="glossary-def">Гіпоталамо-гіпофізарно-надниркова вісь. Головний нейроендокринний шлях стресової відповіді, викид кортизолу.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="catecholamines">Катехоламіни</div>
+            <div class="glossary-def">Адреналін та норадреналін. Гормони «боротьби або втечі», що мобілізують організм.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="choking">«Choking» (Заціпеніння)</div>
+            <div class="glossary-def">Раптова втрата автоматизованої навички під тиском відповідальності. Спричинена гіперактивацією Amygdala.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="quiet-eye">«Quiet Eye» (Тихе око)</div>
+            <div class="glossary-def">Стабільна фінальна фіксація погляду на цілі перед виконанням руху. Маркер стресостійкості.</div>
+          </div>
+          
+          <div class="glossary-item">
+            <div class="glossary-term" data-target="cortico-limbic">Кортико-лімбічна регуляція</div>
+            <div class="glossary-def">Низхідний контроль префронтальної кори над емоційними центрами. Тренується через експозицію до стресу.</div>
+          </div>
+        </aside>
+        
+      </div>
+      
+      <!-- Article Cards (Navigation) -->
+      <div style="margin: var(--space-12) 0;">
+        <h3 style="margin-bottom: var(--space-6);">Продовжити читання</h3>
+        
+        <a href="integration.html" style="text-decoration: none; color: inherit;">
+          <div class="article-card">
+            <img class="card-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='70' viewBox='0 0 100 70'%3E%3Crect width='100' height='70' fill='%23F4EFE6'/%3E%3Cpath d='M20,50 Q50,20 80,50' fill='none' stroke='%232A5C82' stroke-width='2' opacity='0.5'/%3E%3Ccircle cx='35' cy='38' r='4' fill='%23D96C4A' opacity='0.5'/%3E%3Ccircle cx='65' cy='38' r='4' fill='%23E6A817' opacity='0.5'/%3E%3C/svg%3E" alt="Сенсомоторна інтеграція">
+            <div class="card-content">
+              <h4>Сенсомоторна інтеграція, зорово-рухова координація та антиципація →</h4>
+              <p style="font-size: var(--text-sm); color: var(--text-muted);">Як мозок передбачає рух до його початку — механізми моторного резонансу</p>
+            </div>
+          </div>
+        </a>
+        
+       <!-- Article Cards Navigation -->
+<!-- Article Cards Navigation -->
+<div style="margin: 4rem 0;">
+  <h3 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.5rem; margin-bottom: 2rem; color: #2A2A2A; letter-spacing: 0.02em; border-left: 3px solid #D96C4A; padding-left: 1.5rem;">Продовжити читання</h3>
+  
+  <!-- Card 1: Integration -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='integration.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <path d="M20,50 Q50,20 80,50" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="35" cy="38" r="4" fill="#D96C4A" opacity="0.5"/>
+        <circle cx="65" cy="38" r="4" fill="#E6A817" opacity="0.5"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Сенсомоторна інтеграція та антиципація →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Зорово-рухова координація та передбачення рухів</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 5 хв</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Card 2: Psychology -->
+  <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem; margin: 1.5rem 0; border-bottom: 1px solid rgba(42, 92, 130, 0.12); cursor: pointer;" onclick="window.location.href='psychology.html'">
+    <div style="width: 100px; height: 70px; flex-shrink: 0; background: #F4EFE6; border-radius: 2px; overflow: hidden;">
+      <svg width="100" height="70" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="70" fill="#F4EFE6"/>
+        <circle cx="40" cy="30" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <circle cx="60" cy="40" r="8" fill="none" stroke="#2A5C82" stroke-width="2" opacity="0.5"/>
+        <line x1="48" y1="30" x2="52" y2="40" stroke="#2A5C82" stroke-width="1.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div style="flex: 1;">
+      <h4 style="font-family: 'Mackinac', Georgia, serif; font-size: 1.25rem; margin: 0 0 0.25rem 0; color: #2A2A2A; font-weight: 500;">Психологія тренерської роботи →</h4>
+      <p style="font-size: 0.875rem; color: #6B6560; margin: 0 0 0.5rem 0;">Трансфер знань, емоційне вигоряння та дзеркальні нейрони</p>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #6B6560;">
+        <span style="display: flex; align-items: center; gap: 0.25rem;">📖 Час читання: 7 хв</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </main>
+    
+    <footer class="references" style="max-width: var(--container-max); margin: 0 auto; padding: var(--space-8) var(--space-6);">
+      <h5>Ключові джерела розділу</h5>
+      <ul class="reference-list">
+        <li id="ref-s1">[1] Arnsten, A.F.T. (2009). Stress signalling pathways that impair prefrontal cortex structure and function. <em>Nature Reviews Neuroscience</em>, 10(6), 410-422.</li>
+        <li id="ref-s2">[2] LeDoux, J.E. (2000). Emotion circuits in the brain. <em>Annual Review of Neuroscience</em>, 23, 155-184.</li>
+        <li id="ref-s3">[3] Yerkes, R.M., & Dodson, J.D. (1908). The relation of strength of stimulus to rapidity of habit-formation. <em>Journal of Comparative Neurology and Psychology</em>, 18, 459-482. (Закон Єркса-Додсона).</li>
+        <li id="ref-s4">[4] Vickers, J.N. (2007). <em>Perception, Cognition, and Decision Training: The Quiet Eye in Action</em>. Human Kinetics.</li>
+      </ul>
+      <p style="margin-top: var(--space-4); font-size: 10px; opacity: 0.5;">
+        © Психологія руху — Organic Precision Design System
+      </p>
+    </footer>
+    
+  </div>
+  
+  <div class="drawing-note">
+    ⚫ Amygdala vs ПФК — нейродинаміка стресової відповіді
+  </div>
+  
+  <!-- Graphs Rendering -->
+  <script>
+    (function() {
+      // Graph 1: Amygdala vs PFC Activity
+      const canvas1 = document.getElementById('graph-amygdala-pfc');
+      if (canvas1) {
+        const ctx = canvas1.getContext('2d');
+        const w = canvas1.width, h = canvas1.height;
+        
+        ctx.fillStyle = '#F9F6F0';
+        ctx.fillRect(0, 0, w, h);
+        
+        // Grid
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+          const y = 50 + i * 55;
+          ctx.beginPath();
+          ctx.moveTo(70, y);
+          ctx.lineTo(w - 30, y);
+          ctx.stroke();
+        }
+        
+        // Bars - Novice
+        ctx.fillStyle = 'rgba(217, 108, 74, 0.7)';
+        ctx.fillRect(120, 120, 60, 140); // Amygdala high
+        ctx.fillStyle = 'rgba(42, 92, 130, 0.5)';
+        ctx.fillRect(200, 200, 60, 60);  // PFC low
+        
+        // Bars - Expert
+        ctx.fillStyle = 'rgba(217, 108, 74, 0.4)';
+        ctx.fillRect(400, 180, 60, 80);  // Amygdala moderate
+        ctx.fillStyle = 'rgba(42, 92, 130, 0.8)';
+        ctx.fillRect(480, 120, 60, 140); // PFC high
+        
+        // Labels
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '11px "Mackinac", serif';
+        ctx.fillText('Новачок', 150, 285);
+        ctx.fillText('Експерт', 430, 285);
+        
+        // Legend
+        ctx.fillStyle = '#D96C4A';
+        ctx.fillRect(560, 60, 12, 12);
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '10px "Tiempos", serif';
+        ctx.fillText('Amygdala', 578, 71);
+        
+        ctx.fillStyle = '#2A5C82';
+        ctx.fillRect(560, 85, 12, 12);
+        ctx.fillStyle = '#4A4540';
+        ctx.fillText('Префронтальна кора', 578, 96);
+        
+        // Y-axis
+        ctx.fillStyle = '#6B6560';
+        ctx.font = '9px "Tiempos", serif';
+        ctx.fillText('Активність (%)', 25, 60);
+      }
+      
+      // Graph 2: Resource Redistribution
+      const canvas2 = document.getElementById('graph-resource-shift');
+      if (canvas2) {
+        const ctx = canvas2.getContext('2d');
+        const w = canvas2.width, h = canvas2.height;
+        
+        ctx.fillStyle = '#F9F6F0';
+        ctx.fillRect(0, 0, w, h);
+        
+        // Baseline line
+        ctx.strokeStyle = 'rgba(42, 92, 130, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(70, 200);
+        ctx.lineTo(w - 30, 200);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Arrows showing shift
+        // Parietal (down)
+        ctx.fillStyle = '#D96C4A';
+        ctx.font = '12px "Tiempos", serif';
+        ctx.fillText('↓', 150, 170);
+        ctx.fillText('Надкрайова звивина', 100, 155);
+        
+        // Motor cortex (up)
+        ctx.fillStyle = '#2A5C82';
+        ctx.fillText('↑', 450, 140);
+        ctx.fillText('Первинна моторна кора', 380, 125);
+        
+        // Bars
+        ctx.fillStyle = 'rgba(217, 108, 74, 0.5)';
+        ctx.fillRect(130, 210, 80, 40);
+        ctx.fillStyle = 'rgba(42, 92, 130, 0.6)';
+        ctx.fillRect(430, 170, 80, 80);
+        
+        // Labels
+        ctx.fillStyle = '#4A4540';
+        ctx.font = '10px "Tiempos", serif';
+        ctx.fillText('Стан спокою', 300, 240);
+        ctx.fillText('Гострий стрес', 300, 265);
+      }
+    })();
+  </script>
+  
+  <script src="main.js"></script>
+   <script>
+  // Оживляємо картки, не змінюючи їхній зовнішній вигляд
+  document.querySelectorAll('.article-card').forEach(card => {
+    card.style.cursor = 'pointer'; // Додаємо курсор-палець при наведенні
+
+    card.addEventListener('click', () => {
+      const destination = card.getAttribute('data-href');
+      if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+</script>
+</body>
+</html>
